@@ -10,7 +10,28 @@
   <style>
     *{box-sizing:border-box;margin:0;padding:0}
     :root{--bg:#080d18;--panel:#111a2b;--line:#243149;--text:#f4f7ff;--muted:#9aa9c1;--blue:#397bff;--cyan:#19d3e6}
-    body{font-family:Arial,sans-serif;background:var(--bg);color:var(--text)}
+    body{font-family:Arial,sans-serif;background:var(--bg);color:var(--text);overflow-x:hidden}
+    html{scroll-behavior:smooth}
+    .logo{transition:transform .25s ease,text-shadow .25s ease}
+    .logo:hover{transform:scale(1.06);text-shadow:0 0 18px #19d3e688}
+    .hero{position:relative;overflow:hidden;animation:heroEnter .8s ease both}
+    .hero:after{content:"";position:absolute;width:320px;height:320px;border-radius:50%;right:-110px;top:-150px;background:#19d3e61c;filter:blur(8px);pointer-events:none}
+    .hero h1{animation:heroText .8s .12s both}
+    .hero p{animation:heroText .8s .25s both}
+    .hero button,.btn,.product button{transition:transform .2s ease,box-shadow .2s ease,background .2s ease}
+    .hero button:hover,.btn:hover,.product button:hover{transform:translateY(-3px);box-shadow:0 8px 22px #397bff55}
+    .category{transition:transform .25s ease,border-color .25s ease,box-shadow .25s ease}
+    .category:hover{box-shadow:0 10px 25px #19d3e61a}
+    .product{transition:transform .25s ease,border-color .25s ease,box-shadow .25s ease;animation:cardIn .55s both}
+    .product:hover{transform:translateY(-7px);border-color:#397bff;box-shadow:0 14px 30px #0005}
+    .product img{transition:transform .35s ease}
+    .product:hover img{transform:scale(1.045)}
+    .reveal{opacity:0;transform:translateY(24px);transition:opacity .65s ease,transform .65s ease}
+    .reveal.visible{opacity:1;transform:translateY(0)}
+    @keyframes heroEnter{from{opacity:0;transform:translateY(18px)}to{opacity:1;transform:translateY(0)}}
+    @keyframes heroText{from{opacity:0;transform:translateY(14px)}to{opacity:1;transform:translateY(0)}}
+    @keyframes cardIn{from{opacity:0;transform:translateY(16px)}to{opacity:1;transform:translateY(0)}}
+    @media(prefers-reduced-motion:reduce){*,*::before,*::after{scroll-behavior:auto!important;animation-duration:.01ms!important;animation-iteration-count:1!important;transition-duration:.01ms!important}.reveal{opacity:1;transform:none}}
     a{color:inherit;text-decoration:none}
     header{background:#0d1524;border-bottom:1px solid var(--line);position:sticky;top:0;z-index:5}
     .nav{max-width:1200px;margin:auto;padding:18px 22px;display:flex;align-items:center;justify-content:space-between;gap:20px}
@@ -167,8 +188,8 @@ function renderProducts(){
     return;
   }
 
-  list.innerHTML = shown.map(p=>`
-    <article class="product">
+  list.innerHTML = shown.map((p,index)=>`
+    <article class="product" style="animation-delay:${Math.min(index*65,390)}ms">
       ${p.image_url ? `<img src="${escapeHTML(p.image_url)}" alt="${escapeHTML(p.name)}" onerror="this.style.display='none'">` : `<div style="height:180px;display:grid;place-items:center;font-size:45px">📦</div>`}
       <div class="product-info">
         <h3>${escapeHTML(p.name)}</h3>
