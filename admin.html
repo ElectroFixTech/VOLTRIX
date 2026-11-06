@@ -143,7 +143,7 @@ input:focus,select:focus,textarea:focus{outline:none;border-color:#20d9ff;box-sh
 
 <section id="customers" class="tab hidden">
 <h2>Customers</h2><br>
-<div id="customerList"></div>
+<p id="customerMsg" class="msg"></p><button id="refreshCustomers" type="button">Refresh</button><div id="customerList"></div>
 </section>
 
 <section id="settings" class="tab hidden">
@@ -325,14 +325,24 @@ if(error)msg("orderMsg",error.message,true);else loadOrders();
 };
 
 async function loadCustomers(){
-const {data,error}=await db.from("orders").select("customer_name,phone,governorate,address").order("created_at",{ascending:false});
-if(error){$("customerList").textContent=error.message;return}
-const unique=new Map();
-(data||[]).forEach(c=>{if(c.phone&&!unique.has(c.phone))unique.set(c.phone,c)});
-$("customerList").innerHTML=[...unique.values()].map(c=>`
-<div class="item"><strong>${safe(c.customer_name)}</strong>
-<p>${safe(c.phone)}</p><p>${safe(c.governorate)} — ${safe(c.address)}</p></div>`).join("")||"No customers yet.";
+msg("customerMsg","Loading registered accounts...");
+$("customerList").textContent="";
+const {data,error}=await db.functions.invoke("list-customers",{body:{}});
+if(error){msg("customerMsg","Could not load registered accounts: "+error.message,true);return}
+if(!data?.success){msg("customerMsg",data?.error||"Could not load registered accounts.",true);return}
+const customers=data.customers||[];
+msg("customerMsg",customers.length+" registered accounts found.");
+$("countCustomers").textContent=customers.length;
+$("customerList").innerHTML=customers.map(c=>`
+<div class="item">
+<strong>${safe(c.email||"No email")}</strong>
+<p>Created: ${c.created_at?new Date(c.created_at).toLocaleString():"—"}</p>
+<p>Email status: ${c.email_confirmed_at?'<span style="color:#35d6a1">Verified</span>':'<span style="color:#ff9aa8">Not verified</span>'}</p>
+<p>Last sign in: ${c.last_sign_in_at?new Date(c.last_sign_in_at).toLocaleString():"Never"}</p>
+<p style="font-size:11px;color:#9aabc4;overflow-wrap:anywhere">ID: ${safe(c.id)}</p>
+</div>`).join("")||"No registered accounts yet.";
 }
+$("refreshCustomers").onclick=loadCustomers;
 
 db.auth.onAuthStateChange((event,session)=>{
 if(event==="SIGNED_OUT"){
