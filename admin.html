@@ -159,9 +159,11 @@ input:focus,select:focus,textarea:focus{outline:none;border-color:#20d9ff;box-sh
 <div class="box">
 <h3>VOLTRIX</h3><br>
 <p>Currency: EGP</p><br>
-<p>Payment: Cash on Delivery</p><br>
-<p>Online Payment: Coming Soon</p><br>
-<p class="msg">Checkout is currently in demo mode.</p>
+<label for="instapayIpa">InstaPay IPA (shown to customers)</label>
+<input id="instapayIpa" maxlength="120" placeholder="yourname@instapay">
+<button id="saveInstaPay" type="button">Save InstaPay Address</button>
+<p id="settingsMsg" class="msg"></p>
+<p class="msg">Orders remain pending until you verify the transfer in Orders.</p>
 </div>
 </section>
 </div>
@@ -213,7 +215,8 @@ b.classList.add("active");
 if(b.dataset.tab==="products")loadProducts();
 if(b.dataset.tab==="orders")loadOrders();
 if(b.dataset.tab==="customers")loadCustomers();
-if(b.dataset.tab==="support")loadSupport();\nif(b.dataset.tab==="settings")loadInstaPaySettings();
+if(b.dataset.tab==="support")loadSupport();
+if(b.dataset.tab==="settings")loadInstaPaySettings();\nif(b.dataset.tab==="settings")loadInstaPaySettings();
 if(b.dataset.tab==="dashboard")dashboard();
 };
 });
@@ -380,6 +383,21 @@ async function loadInstaPaySettings(){
  if(error){msg("settingsMsg","Could not load settings: "+error.message,true);return}
  $("instapayIpa").value=data?.instapay_ipa||"";
  msg("settingsMsg","Set the IPA customers should use for transfers.");
+}
+$("saveInstaPay").onclick=async()=>{
+ const ipa=$("instapayIpa").value.trim();
+ if(!ipa){msg("settingsMsg","Enter the InstaPay IPA first.",true);return}
+ const {error}=await db.from("store_settings").upsert({id:1,instapay_ipa:ipa});
+ if(error)msg("settingsMsg","Could not save IPA: "+error.message,true);
+ else msg("settingsMsg","InstaPay address saved.");
+};
+
+async function loadInstaPaySettings(){
+ msg("settingsMsg","Loading...");
+ const {data,error}=await db.from("store_settings").select("instapay_ipa").eq("id",1).maybeSingle();
+ if(error){msg("settingsMsg","Could not load settings: "+error.message,true);return}
+ $("instapayIpa").value=data?.instapay_ipa||"";
+ msg("settingsMsg","Enter the store InstaPay IPA.");
 }
 $("saveInstaPay").onclick=async()=>{
  const ipa=$("instapayIpa").value.trim();
