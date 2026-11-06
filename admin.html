@@ -189,7 +189,8 @@ $("panel").classList.add("hidden");
 if(!user)return;
 const {data,error}=await db.from("profiles").select("role").eq("id",user.id).maybeSingle();
 if(error){msg("loginMsg","Profile error: "+error.message,true);return}
-if(data?.role!=="admin"){msg("loginMsg","Admin access denied.",true);await db.auth.signOut();return}
+if(!data){msg("loginMsg","Profile row not found for this account. Check profiles.id matches Authentication User UID.",true);return}
+if(data.role!=="admin"){msg("loginMsg","This account role is: "+String(data.role)+". Expected admin.",true);return}
 $("login").classList.add("hidden");
 $("panel").classList.remove("hidden");
 await dashboard();
