@@ -73,13 +73,13 @@ async function loadProducts(){
 function productPhoto(p){
  const n=String(p.name||"").toLowerCase();
  const photos=[
-  [/arduino uno r3 without cable/, "https://store.arduino.cc/cdn/shop/files/A000073_00.front_934x700.jpg?v=1727098256"],
-  [/arduino nano v3.0/, "https://store.arduino.cc/cdn/shop/files/A000005_03.front_934x700.jpg?v=1777476619"],
-  [/stm32f103c8t6 blue pill/, "https://shillehtek.com/cdn/shop/files/3_4889ab33-55f1-4b1d-ad8f-53e91ae9dc4c.png?v=1768710726&width=1445"],
-  [/water flow sensor yf-s201/, "https://protronix-eg.com/wp-content/uploads/2026/01/Y201-150x150.webp"],
+  [/arduino uno r3/, "https://laelectronica.com.gt/image/cache/catalog/Productos/Arduinos/A000066-1-1200x1200.jpg"],
+  [/arduino nano/, "https://hackster.imgix.net/uploads/attachments/231079/F2SVJQ2IMI10LSS.LARGE.jpg?auto=compress%2Cformat&fit=max&h=960&w=1280"],
+  [/stm32f103c8t6 blue pill/, "https://www.faranux.com/wp-content/uploads/2017/05/stm32f103c6t6-stm32f103c8t6-arm-stm32-minimum-system-development.jpg"],
+  [/water flow sensor yf-s201/, "https://cdn2.botland.com.pl/img/art/inne/08896_5_kwadrat.jpg"],
+  [/8-channel 5v serial control relay/, "https://www.tinytronics.nl/image/cache/data/product-162/8-channel%20relay%20low%20active-1200x1200w.JPG"],
   [/usb-c 18650 charging module/, "https://laz-img-sg.alicdn.com/p/8923cbcb6297ae76e64e54d02bdbb07f.jpg"],
-  [/terminal block 3-pin/, "https://m.media-amazon.com/images/I/71JtyiePxCL.jpg"],
-  [/8-channel 5v serial control relay/, "https://cdn.shopify.com/s/files/1/0122/7558/0986/products/5_6e44f303-1cec-4c2b-b235-f48d0f2a114b_1024x1024.jpg?v=1604310110"]
+  [/terminal block 3-pin/, "https://m.media-amazon.com/images/I/71JtyiePxCL.jpg"]
  ];
  const match=photos.find(([pattern])=>pattern.test(n));
  return match?match[1]:(p.image_url||"");
