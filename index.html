@@ -73,12 +73,30 @@ async function loadProducts(){
 function productEmoji(category){
  const found=categories.find(c=>c[0]===category);return found?found[1]:"🔌";
 }
+function productIllustration(p){
+ const name=String(p.name||"Electronic component");
+ const key=name.toLowerCase();
+ let symbol=productEmoji(p.category);
+ if(/arduino|stm32|st-link|development board/.test(key))symbol="▦";
+ else if(/sensor|flow/.test(key))symbol="◉";
+ else if(/battery|charger|power|buck/.test(key))symbol="ϟ";
+ else if(/led|light/.test(key))symbol="✦";
+ else if(/cable|wire|terminal|connector/.test(key))symbol="⌁";
+ else if(/relay|switch/.test(key))symbol="⏻";
+ else if(/screwdriver|tool|plier/.test(key))symbol="⚒";
+ else if(/bluetooth|rf|wireless/.test(key))symbol="⌁";
+ else if(/audio|amplifier|speaker/.test(key))symbol="♫";
+ else if(/ic|resistor|capacitor|module/.test(key))symbol="▧";
+ const safeName=name.replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&apos;"}[c])).slice(0,38);
+ const svg='<svg xmlns="http://www.w3.org/2000/svg" width="640" height="480" viewBox="0 0 640 480"><defs><linearGradient id="g" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#f8fbff"/><stop offset="1" stop-color="#c9e2ff"/></linearGradient></defs><rect width="640" height="480" rx="28" fill="url(#g)"/><g fill="none" stroke="#3a8ed0" opacity=".18" stroke-width="3"><path d="M0 90h120v70h90m430-40H520v80h-90M70 480v-90h90v-70m480 160v-85h-95v-70"/><circle cx="120" cy="90" r="7"/><circle cx="520" cy="120" r="7"/></g><circle cx="320" cy="205" r="116" fill="#eaf5ff" stroke="#8dbce8" stroke-width="5"/><circle cx="320" cy="205" r="91" fill="#0c3d70"/><text x="320" y="247" text-anchor="middle" font-family="Arial,sans-serif" font-size="116" font-weight="700" fill="#56dfff">'+symbol+'</text><text x="320" y="390" text-anchor="middle" font-family="Arial,sans-serif" font-size="25" font-weight="700" fill="#12395f">'+safeName+'</text><text x="320" y="425" text-anchor="middle" font-family="Arial,sans-serif" font-size="15" letter-spacing="5" fill="#3979ad">VOLTRIX COMPONENT</text></svg>';
+ return "data:image/svg+xml;charset=UTF-8,"+encodeURIComponent(svg);
+}
 function renderProducts(){
  const list=document.getElementById("productList"),term=(document.getElementById("searchInput")?.value||"").trim().toLowerCase();
  const shown=products.filter(p=>(!currentCategory||p.category===currentCategory)&&(!term||[p.name,p.description,p.category].join(" ").toLowerCase().includes(term)));
  document.getElementById("productHeading").textContent=currentCategory|| (term?"Search Results":"★ Featured Products");
  if(!shown.length){list.innerHTML='<div class="empty">No products found. Try another category or search term.</div>';return;}
- list.innerHTML=shown.map((p,i)=>'<article class="product" style="animation-delay:'+Math.min(i*45,350)+'ms"><div class="product-media">'+(p.image_url?'<img src="'+escapeHTML(p.image_url)+'" alt="'+escapeHTML(p.name)+'" onerror="this.parentElement.innerHTML=\'<div class=art-placeholder><span>🔌</span></div>\'">':'<div class="art-placeholder"><span>'+productEmoji(p.category)+'</span></div>')+'</div><div class="product-info"><h3>'+escapeHTML(p.name)+'</h3><p>'+escapeHTML(p.description||p.category||"Electronic component")+'</p><div class="price">'+Number(p.price||0).toLocaleString()+' EGP</div><span class="stock">● Stock status: Contact us</span><button onclick="addToCart('+JSON.stringify(String(p.id))+')">🛒 Add to Cart</button></div></article>').join("");
+ list.innerHTML=shown.map((p,i)=>'<article class="product" style="animation-delay:'+Math.min(i*45,350)+'ms"><div class="product-media"><img src="'+escapeHTML(p.image_url||productIllustration(p))+'" alt="'+escapeHTML(p.name)+'" onerror="this.onerror=null;this.src=\''+productIllustration(p)+'\'"></div><div class="product-info"><h3>'+escapeHTML(p.name)+'</h3><p>'+escapeHTML(p.description||p.category||"Electronic component")+'</p><div class="price">'+Number(p.price||0).toLocaleString()+' EGP</div><span class="stock">● Stock status: Contact us</span><button onclick="addToCart('+JSON.stringify(String(p.id))+')">🛒 Add to Cart</button></div></article>').join("");
 }
 function filterCategory(name){currentCategory=name;renderProducts();document.getElementById("products").scrollIntoView({behavior:"smooth"});document.querySelectorAll(".catlink").forEach(b=>b.classList.toggle("active",b.dataset.category===name));}
 function showAllProducts(){currentCategory=null;document.getElementById("searchInput").value="";document.querySelectorAll(".catlink").forEach(b=>b.classList.remove("active"));renderProducts();}
