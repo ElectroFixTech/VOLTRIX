@@ -190,8 +190,9 @@ async function loadProducts(){
     products = await response.json();
     renderProducts();
   }catch(error){
-    list.innerHTML = '<div class="empty">Could not load products. Please try again later.</div>';
-    console.error(error);
+    const detail = error && error.message ? error.message : String(error);
+    list.innerHTML = '<div class="empty">Could not load products.<br><small style="display:block;margin-top:10px;direction:ltr;overflow-wrap:anywhere;color:#ff9aa8">'+escapeHTML(detail)+'</small></div>';
+    console.error("VOLTRIX products request failed:",error);
   }
 }
 
