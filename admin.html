@@ -60,7 +60,7 @@ input:focus,select:focus,textarea:focus{outline:none;border-color:#20d9ff;box-sh
 <main>
 <div id="login" class="box" style="max-width:430px;margin:50px auto">
 <h2>Admin Login</h2>
-<form id="loginForm" onsubmit="event.preventDefault();document.getElementById('loginMsg').textContent='Login script did not start. Please send this message.';">
+<form id="loginForm">
 <label>Email</label>
 <input name="email" type="email" required>
 <label>Password</label>
@@ -217,7 +217,7 @@ if(b.dataset.tab==="products")loadProducts();
 if(b.dataset.tab==="orders")loadOrders();
 if(b.dataset.tab==="customers")loadCustomers();
 if(b.dataset.tab==="support")loadSupport();
-if(b.dataset.tab==="settings")loadInstaPaySettings();\nif(b.dataset.tab==="settings")loadInstaPaySettings();
+if(b.dataset.tab==="settings")loadInstaPaySettings();
 if(b.dataset.tab==="dashboard")dashboard();
 };
 });
@@ -384,21 +384,6 @@ async function loadInstaPaySettings(){
  if(error){msg("settingsMsg","Could not load settings: "+error.message,true);return}
  $("instapayIpa").value=data?.instapay_ipa||"";
  msg("settingsMsg","Set the IPA customers should use for transfers.");
-}
-$("saveInstaPay").onclick=async()=>{
- const ipa=$("instapayIpa").value.trim();
- if(!ipa){msg("settingsMsg","Enter the InstaPay IPA first.",true);return}
- const {error}=await db.from("store_settings").upsert({id:1,instapay_ipa:ipa});
- if(error)msg("settingsMsg","Could not save IPA: "+error.message,true);
- else msg("settingsMsg","InstaPay address saved.");
-};
-
-async function loadInstaPaySettings(){
- msg("settingsMsg","Loading...");
- const {data,error}=await db.from("store_settings").select("instapay_ipa").eq("id",1).maybeSingle();
- if(error){msg("settingsMsg","Could not load settings: "+error.message,true);return}
- $("instapayIpa").value=data?.instapay_ipa||"";
- msg("settingsMsg","Enter the store InstaPay IPA.");
 }
 $("saveInstaPay").onclick=async()=>{
  const ipa=$("instapayIpa").value.trim();
