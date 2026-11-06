@@ -87,7 +87,14 @@ Deno.serve(async (req) => {
     return reply({ success: true, order_number: order.order_number, total: order.total });
   } catch (error) {
     console.error("create-order error at " + stage + ":", error);
-    const detail = error instanceof Error ? error.message : String(error);
-    return reply({ error: "Order failed at " + stage + ": " + detail }, 500);
+    const detail = error && typeof error === "object"
+      ? {
+          message: (error as any).message ?? null,
+          code: (error as any).code ?? null,
+          details: (error as any).details ?? null,
+          hint: (error as any).hint ?? null,
+        }
+      : { message: String(error) };
+    return reply({ error: "Order failed at " + stage, details: detail }, 500);
   }
 });
