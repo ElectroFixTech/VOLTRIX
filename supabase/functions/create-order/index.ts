@@ -18,6 +18,10 @@ Deno.serve(async (req) => {
   if (req.method !== "POST") return reply({ error: "Method not allowed" }, 405);
 
   try {
+    const authorization = req.headers.get("Authorization") || "";
+    const token = authorization.replace(/^Bearer\\s+/i, "");
+    if (!token) return reply({ error: "Please sign in before placing an order." }, 401);
+
     const { name, phone, governorate, address, notes, payment_method, items } = await req.json();
 
     if (typeof name !== "string" || name.trim().length < 2 ||
@@ -33,7 +37,12 @@ Deno.serve(async (req) => {
 
     const url = Deno.env.get("SUPABASE_URL");
     const key = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY");
-    if (!url || !key) return reply({ error: "Order service is not configured." }, 500);
+    const anonKey = Deno.env.get("SUPABASE_ANON_KEY");
+    if (!url || !key || !anonKey) return reply({ error: "Order service is not configured." }, 500);
+
+    const authClient = createClient(url, anonKey, { auth: { persistSession: false } });
+    const { data: authData, error: authError } = await authClient.auth.getUser(token);
+    if (authError || !authData.user) return reply({ error: "Your session expired. Please sign in again." }, 401);
 
     stage = "database connection";
     const db = createClient(url, key, { auth: { persistSession: false } });
