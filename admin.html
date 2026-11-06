@@ -328,7 +328,19 @@ async function loadCustomers(){
 msg("customerMsg","Loading registered accounts...");
 $("customerList").textContent="";
 const {data,error}=await db.functions.invoke("list-customers",{body:{}});
-if(error){msg("customerMsg","Could not load registered accounts: "+error.message,true);return}
+if(error){
+ let detail=error.message||"Unknown function error";
+ try{
+  const response=error.context;
+  if(response&&typeof response.clone==="function"){
+   const body=await response.clone().json();
+   if(body?.error)detail+=" — "+body.error;
+   else if(body?.message)detail+=" — "+body.message;
+   else detail+=" — "+JSON.stringify(body);
+  }
+ }catch(_){}
+ msg("customerMsg","Could not load registered accounts: "+detail,true);return
+}
 if(!data?.success){msg("customerMsg",data?.error||"Could not load registered accounts.",true);return}
 const customers=data.customers||[];
 msg("customerMsg",customers.length+" registered accounts found.");
