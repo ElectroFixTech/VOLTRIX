@@ -60,7 +60,7 @@ input:focus,select:focus,textarea:focus{outline:none;border-color:#20d9ff;box-sh
 <main>
 <div id="login" class="box" style="max-width:430px;margin:50px auto">
 <h2>Admin Login</h2>
-<form id="loginForm">
+<form id="loginForm" onsubmit="event.preventDefault();document.getElementById('loginMsg').textContent='Login script did not start. Please send this message.';">
 <label>Email</label>
 <input name="email" type="email" required>
 <label>Password</label>
