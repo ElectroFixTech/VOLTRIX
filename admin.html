@@ -316,7 +316,7 @@ $("orderList").innerHTML=orders.map(o=>{
 <strong>${safe(o.order_number||o.id)}</strong>
 <p>${safe(o.customer_name)} | ${safe(o.phone)}</p>
 <p>${safe(o.governorate)} | ${safe(o.address)}</p>
-<p>Payment: ${safe(o.payment_method)} | Payment status: <strong>${safe(o.payment_status||"unpaid")}</strong> | Total: EGP ${money(o.total)}</p><p>InstaPay reference: ${safe(o.payment_reference||"—")}</p><label>Payment verification</label><select data-payment-status="${safe(o.id)}">${["pending","paid","rejected","unpaid"].map(s=>`<option ${o.payment_status===s?"selected":""}>${s}</option>`).join("")}</select><button data-payment-update="${safe(o.id)}">Save Payment Status</button>
+<p>Payment: ${safe(o.payment_method==="cod"?"Cash on Delivery":"InstaPay")} | Payment status: <strong>${safe(o.payment_status||"unpaid")}</strong> | Total: EGP ${money(o.total)}</p>${o.payment_method==="instapay"?`<label>Payment verification</label><select data-payment-status="${safe(o.id)}">${["pending","paid","rejected"].map(s=>`<option ${o.payment_status===s?"selected":""}>${s}</option>`).join("")}</select><button data-payment-update="${safe(o.id)}">Save Payment Status</button>`:"<p>Collect payment when the order is delivered.</p>"}
 <p>Placed: ${o.created_at?new Date(o.created_at).toLocaleString():"—"}</p>
 <strong>Products ordered:</strong>
 ${lines.map(x=>`<p>• ${safe(x.product_name)} × ${money(x.quantity)} — EGP ${money(Number(x.unit_price)*Number(x.quantity))}</p>`).join("")||"<p>Order items unavailable.</p>"}
