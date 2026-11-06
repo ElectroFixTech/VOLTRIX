@@ -134,7 +134,7 @@ async function checkout(){
    body:JSON.stringify({name,phone,governorate,address,payment_method:"cod",items:cart.map(x=>({id:x.id,quantity:x.quantity}))})
   });
   const result=await response.json();
-  if(!response.ok||!result.success)throw new Error(result.error||"Order could not be saved.");
+  if(!response.ok||!result.success){const detail=result.details?(" | Details: "+JSON.stringify(result.details)): "";throw new Error((result.error||"Order could not be saved.")+detail);}
   alert("Your order was received! Order number: "+result.order_number+" | Total: "+Number(result.total).toLocaleString()+" EGP");
   cart=[];renderCart();
   ["customerName","customerPhone","customerGovernorate","customerAddress","customerNotes"].forEach(id=>document.getElementById(id).value="");
