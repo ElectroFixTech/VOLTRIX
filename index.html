@@ -156,7 +156,7 @@ function showCheckoutMessage(message,type="error",fieldId=null){const box=docume
 async function checkout(){
  if(!cart.length){showCheckoutMessage("Your cart is empty.");return;}
  const {data:sessionData}=await authClient.auth.getSession();
- if(!sessionData.session){location.href="signin.html?next=checkout";return;}
+ if(!sessionData.session){showCheckoutMessage("Please sign in before placing an order. Tap Sign in at the top of the page, then return here to complete your order.");return;}
  document.getElementById("checkoutMessage").className="form-message";
  const name=document.getElementById("customerName").value.trim();
  const phone=document.getElementById("customerPhone").value.trim();
