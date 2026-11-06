@@ -31,8 +31,8 @@ Deno.serve(async (req) => {
         !Array.isArray(items) || items.length < 1 || items.length > 50) {
       return reply({ error: "Please provide valid customer details and cart items." }, 400);
     }
-    if (payment_method !== "cod") {
-      return reply({ error: "Only Cash on Delivery is currently available." }, 400);
+    if (payment_method !== "instapay" || typeof payment_reference !== "string" || payment_reference.trim().length < 3) {
+      return reply({ error: "InstaPay payment reference is required." }, 400);
     }
 
     const url = Deno.env.get("SUPABASE_URL");
@@ -46,6 +46,9 @@ Deno.serve(async (req) => {
 
     stage = "database connection";
     const db = createClient(url, key, { auth: { persistSession: false } });
+    const { data: storeSettings, error: settingsError } = await db.from("store_settings").select("instapay_ipa").eq("id", 1).maybeSingle();
+    if (settingsError) throw settingsError;
+    if (!storeSettings?.instapay_ipa) return reply({ error: "InstaPay is not configured yet. Please contact the store." }, 503);
     const cleanItems = items.map((x: any) => ({
       id: String(x.id ?? ""),
       quantity: Number(x.quantity),
@@ -79,7 +82,9 @@ Deno.serve(async (req) => {
       phone: phone.trim().slice(0, 30),
       governorate: governorate.trim().slice(0, 80),
       address: address.trim().slice(0, 500),
-      payment_method: "cod",
+      payment_method: "instapay",
+      payment_status: "pending",
+      payment_reference: payment_reference.trim().slice(0, 100),
       status: "new",
       total,
     }).select("id,order_number,total").single();
