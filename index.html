@@ -10,7 +10,7 @@
 header{position:sticky;top:0;z-index:20;background:#080e1bee;border-bottom:1px solid var(--line);backdrop-filter:blur(16px)}
 .topbar{max-width:1600px;margin:auto;padding:14px 24px;display:grid;grid-template-columns:270px minmax(180px,1fr) auto;gap:26px;align-items:center}
 .brand{display:flex;align-items:center;gap:12px;font-size:30px;font-weight:950;letter-spacing:2px}.brand-mark{width:48px;height:48px;display:grid;place-items:center;background:linear-gradient(145deg,#09b9ff,#174cff);clip-path:polygon(50% 0,100% 100%,58% 78%,35% 100%,0 100%);font-size:27px;color:#061326}.brand span{color:var(--cyan)}.tagline{display:block;font-size:10px;letter-spacing:1.4px;color:var(--muted);font-weight:600;margin-top:1px}
-.search{position:relative}.search input{width:100%;border:1px solid #314361;background:#17243a;border-radius:30px;padding:16px 22px 16px 50px;color:white;outline:none;font-size:15px}.search:before{content:"⌕";position:absolute;left:19px;top:5px;font-size:30px;color:#dceaff}.head-actions{display:flex;gap:22px;align-items:center;color:#dbe8ff;font-size:14px}.head-actions a:hover{color:var(--cyan)}.head-actions a[href="signin.html"]{color:var(--cyan);font-weight:800;text-shadow:0 0 12px #19d3e688}.head-actions a[href="signin.html"]:hover{color:#fff}
+.search{position:relative}.search input{width:100%;border:1px solid #314361;background:#17243a;border-radius:30px;padding:16px 22px 16px 50px;color:white;outline:none;font-size:15px}.search:before{content:"⌕";position:absolute;left:19px;top:5px;font-size:30px;color:#dceaff}.head-actions{display:flex;gap:22px;align-items:center;color:#dbe8ff;font-size:14px}.head-actions a:hover{color:var(--cyan)}.head-actions a[href="signin.html"]{color:var(--cyan);font-weight:800;text-shadow:0 0 12px #19d3e688}.head-actions a[href="signin.html"]:hover{color:#fff}.account-area{display:flex;align-items:center;gap:10px;max-width:260px}.account-email{display:inline-block;max-width:150px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;color:#19d3e6;font-weight:800}.logout-btn{border:1px solid #45617f;background:#17243a;color:#f4f7ff;border-radius:8px;padding:8px 11px;font-size:12px;font-weight:800}.logout-btn:hover{border-color:#19d3e6;color:#19d3e6}
 .toast{position:fixed;right:18px;bottom:20px;z-index:99;background:#123b32;border:1px solid #24d6a0;color:#eafff7;padding:13px 18px;border-radius:12px;box-shadow:0 12px 35px #0008;opacity:0;transform:translateY(15px);pointer-events:none;transition:.25s}.toast.show{opacity:1;transform:translateY(0)}#cartCount.bump{display:inline-block;animation:cartBump .35s ease}@keyframes cartBump{50%{transform:scale(1.6);color:#24e6ff}}
 .navrow{border-top:1px solid #1a2a43}.navrow nav{max-width:1600px;margin:auto;padding:12px 24px;display:flex;gap:34px;align-items:center}.navrow a{font-weight:700;font-size:14px;color:#dce8ff}.navrow a:hover{color:var(--cyan)}.allcats{background:var(--blue);padding:12px 22px;border-radius:10px}
 .layout{max-width:1600px;margin:16px auto;padding:0 14px;display:grid;grid-template-columns:290px minmax(0,1fr);gap:14px}.sidebar{display:flex;flex-direction:column;gap:12px}.sidecats{background:linear-gradient(160deg,#111d31,#0d1627);border:1px solid var(--line);border-radius:15px;overflow:hidden}.side-title{padding:17px 18px;border-bottom:1px solid var(--line);font-size:17px;font-weight:800}.catlink{width:100%;border:0;border-bottom:1px solid #1c2a40;background:transparent;color:#e7efff;text-align:left;padding:10px 14px;display:flex;align-items:center;gap:12px;font-size:13px;transition:.2s}.catlink:last-child{border-bottom:0}.catlink:hover,.catlink.active{background:#123252;color:#42e4f4}.caticon{width:22px;text-align:center;font-size:18px}
@@ -29,7 +29,7 @@ footer{margin-top:55px;padding:30px;text-align:center;background:#0d1524;border-
  <div class="topbar">
   <a class="brand" href="#"><span class="brand-mark">ϟ</span><span>VOLTRIX<small class="tagline">ELECTRONICS • INNOVATION • MORE</small></span></a>
   <div class="search"><input id="searchInput" type="search" placeholder="Search for products..." oninput="renderProducts()"></div>
-  <div class="head-actions"><a href="signin.html">Sign in</a><a href="#contact">◉ Support</a><a href="#cart">🛒 <span id="cartCount">0</span> Cart</a></div>
+  <div class="head-actions"><span id="accountArea"><a href="signin.html">Sign in</a></span><a href="#contact">◉ Support</a><a href="#cart">🛒 <span id="cartCount">0</span> Cart</a></div>
  </div>
  <div class="navrow"><nav><a class="allcats" href="#categories">☰ &nbsp; All Categories</a><a href="#home">⌂ &nbsp; Home</a><a href="#products">🔥 &nbsp; Best Sellers</a><a href="#products">★ &nbsp; New Arrivals</a><a href="#products">◆ &nbsp; Products</a><a href="#contact">☎ &nbsp; Contact</a></nav></div>
 </header>
@@ -60,6 +60,25 @@ const categories=[
 let products=[],cart=JSON.parse(localStorage.getItem("voltrix_cart")||"[]"),currentCategory=null;
 const authClient=supabase.createClient(SUPABASE_URL,SUPABASE_KEY);
 const escapeHTML=v=>String(v??"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
+function renderAccount(session){
+ const area=document.getElementById("accountArea");
+ if(!area)return;
+ if(session?.user){
+  const email=session.user.email||"My Account";
+  area.innerHTML='<span class="account-area"><span class="account-email" title="'+escapeHTML(email)+'">'+escapeHTML(email)+'</span><button class="logout-btn" id="logoutButton" type="button">Log Out</button></span>';
+ }else{
+  area.innerHTML='<a href="signin.html">Sign in</a>';
+ }
+}
+document.getElementById("accountArea").addEventListener("click",async e=>{
+ if(e.target.id!=="logoutButton")return;
+ const button=e.target;button.disabled=true;button.textContent="Logging out...";
+ const {error}=await authClient.auth.signOut();
+ if(error){button.disabled=false;button.textContent="Log Out";showCartToast("Could not log out. Please try again.");return;}
+ renderAccount(null);showCartToast("You have been logged out.");
+});
+authClient.auth.getSession().then(({data})=>renderAccount(data.session));
+authClient.auth.onAuthStateChange((_event,session)=>renderAccount(session));
 function buildCategories(){
  document.getElementById("sideCategories").innerHTML=categories.map(([name,emoji])=>'<a class="catlink" data-category="'+escapeHTML(name)+'" href="category.html?name='+encodeURIComponent(name)+'"><span class="caticon">'+emoji+'</span>'+escapeHTML(name)+' <span style="margin-left:auto">›</span></a>').join("");
  document.getElementById("shortCategories").innerHTML=categories.slice(0,7).map(([name,emoji])=>'<a class="shortcut" href="category.html?name='+encodeURIComponent(name)+'"><span class="emoji">'+emoji+'</span><span>'+escapeHTML(name)+'</span></a>').join("");
