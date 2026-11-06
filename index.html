@@ -2,355 +2,260 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<meta name="theme-color" content="#080d18">
-<title>VOLTRIX | Electronics Store</title>
-<style>
-*{box-sizing:border-box;margin:0;padding:0}
-html{scroll-behavior:smooth}
-body{font-family:Arial,sans-serif;background:#080d18;color:#fff}
-header{padding:20px 7%;display:flex;justify-content:space-between;align-items:center;border-bottom:1px solid #24364d;position:sticky;top:0;background:#080d18;z-index:10}
-.logo{font-size:27px;font-weight:900;letter-spacing:3px;color:#20d9ff}
-nav{display:flex;gap:20px;align-items:center;flex-wrap:wrap}
-nav a{color:#ddd;text-decoration:none}
-nav a:hover{color:#20d9ff}
-button{cursor:pointer;border:0}
-button:disabled{opacity:.5;cursor:not-allowed}
-.cart-btn,.add-btn,.main-btn{background:#20d9ff;color:#06111b;padding:13px 18px;border-radius:7px;font-weight:bold}
-.hero{padding:90px 7%;background:radial-gradient(circle at 80% 40%,#123b5b,#080d18 60%)}
-.hero h1{font-size:clamp(42px,7vw,75px);max-width:700px}
-.hero h1 span{color:#20d9ff}
-.hero p{color:#aab8ca;margin:22px 0;font-size:18px}
-.main-btn{display:inline-block;text-decoration:none}
-section{padding:55px 7%}
-h2{font-size:30px;margin-bottom:25px}
-.categories,.products{display:grid;grid-template-columns:repeat(auto-fit,minmax(190px,1fr));gap:18px}
-.category span{display:block;font-size:32px;margin-bottom:14px}
-.product .image{height:130px;display:grid;place-items:center;font-size:65px;background:#17263a;border-radius:8px;margin-bottom:18px}
-.product p{color:#9caec3;margin:12px 0}
-.price{color:#20d9ff;font-size:20px;font-weight:bold;margin:12px 0}
-.add-btn{width:100%;margin-top:10px}
-.cart-box{max-width:850px}
-.cart-item{display:flex;justify-content:space-between;gap:12px;align-items:center;padding:15px 0;border-bottom:1px solid #293b50}
-.cart-item button,.small-btn{background:#263b55;color:white;padding:8px 10px;border-radius:5px}
-.qty-controls{display:flex;align-items:center;gap:8px;margin-top:8px}
-.total{font-size:23px;color:#20d9ff;font-weight:bold;margin-top:20px}
-.empty{color:#9caec3;padding:15px 0}
-label{display:block;margin:18px 0 8px;color:#cbd5e1}
-input,select,textarea{width:100%;padding:13px;border-radius:7px;border:1px solid #30445e;background:#080d18;color:white;font-size:15px;outline:none}
-textarea{min-height:90px;resize:vertical}
-input:focus,select:focus,textarea:focus{border-color:#20d9ff}
-.notice{color:#9caec3;font-size:13px;line-height:1.6;margin-top:15px}
-.hidden{display:none!important}
-.status{color:#20d9ff;margin:12px 0;line-height:1.6}
-.danger{background:#b93648!important;color:white!important}
-.secondary{background:#263b55!important;color:white!important}
-table{width:100%;border-collapse:collapse;margin-top:15px}
-td,th{padding:12px;text-align:left;border-bottom:1px solid #30445e}
-footer{text-align:center;padding:35px;color:#8191a5;border-top:1px solid #24364d}
-footer .logo{margin-bottom:12px}
-@media(max-width:650px){
-header{flex-direction:column;gap:17px}
-nav{justify-content:center;gap:13px}
-.hero{padding-top:65px}
-.cart-item{flex-direction:column;align-items:flex-start}
-}
-</style>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="theme-color" content="#080d18">
+  <title>VOLTRIX | Electronics Store</title>
+  <meta name="description" content="Shop electronics, cables, chargers, components and tools at VOLTRIX.">
+  <style>
+    *{box-sizing:border-box;margin:0;padding:0}
+    :root{--bg:#080d18;--panel:#111a2b;--line:#243149;--text:#f4f7ff;--muted:#9aa9c1;--blue:#397bff;--cyan:#19d3e6}
+    body{font-family:Arial,sans-serif;background:var(--bg);color:var(--text)}
+    a{color:inherit;text-decoration:none}
+    header{background:#0d1524;border-bottom:1px solid var(--line);position:sticky;top:0;z-index:5}
+    .nav{max-width:1200px;margin:auto;padding:18px 22px;display:flex;align-items:center;justify-content:space-between;gap:20px}
+    .logo{font-size:26px;font-weight:900;letter-spacing:2px;color:var(--cyan)}
+    nav{display:flex;gap:22px;flex-wrap:wrap}
+    nav a{color:var(--muted);font-size:14px}
+    nav a:hover{color:var(--cyan)}
+    .hero{max-width:1200px;margin:35px auto;padding:65px 25px;background:linear-gradient(120deg,#142b50,#101b32 60%,#102d39);border:1px solid var(--line);border-radius:22px}
+    .hero h1{font-size:clamp(35px,6vw,65px);margin-bottom:18px}
+    .hero h1 span{color:var(--cyan)}
+    .hero p{color:var(--muted);font-size:17px;line-height:1.8;max-width:600px}
+    .hero button,.btn{border:0;background:var(--blue);color:white;padding:13px 22px;border-radius:9px;font-weight:bold;cursor:pointer;margin-top:24px}
+    .section{max-width:1200px;margin:55px auto;padding:0 22px}
+    .section-head{display:flex;justify-content:space-between;align-items:center;gap:15px;margin-bottom:24px}
+    .section h2{font-size:27px}
+    .muted{color:var(--muted)}
+    .categories{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:15px}
+    .category{background:var(--panel);border:1px solid var(--line);padding:23px 12px;border-radius:13px;text-align:center;cursor:pointer}
+    .category:hover{border-color:var(--cyan);transform:translateY(-3px)}
+    .category .emoji{font-size:30px;margin-bottom:12px}
+    .products{display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:18px}
+    .product{background:var(--panel);border:1px solid var(--line);border-radius:15px;overflow:hidden}
+    .product img{width:100%;height:180px;object-fit:contain;background:#fff;padding:12px}
+    .product-info{padding:17px}
+    .product-info h3{margin-bottom:9px}
+    .product-info p{color:var(--muted);font-size:14px;line-height:1.5}
+    .price{font-size:20px;font-weight:bold;color:var(--cyan);margin:14px 0}
+    .product button{width:100%;padding:11px;border:0;border-radius:8px;background:var(--blue);color:white;font-weight:bold;cursor:pointer}
+    .empty{padding:35px;text-align:center;background:var(--panel);border:1px dashed var(--line);border-radius:12px;color:var(--muted);grid-column:1/-1}
+    .cart-box{background:var(--panel);padding:22px;border:1px solid var(--line);border-radius:14px}
+    .cart-item{display:flex;justify-content:space-between;gap:15px;padding:12px 0;border-bottom:1px solid var(--line)}
+    .cart-item button{background:#b52f42;color:white;border:0;padding:5px 10px;border-radius:6px;cursor:pointer}
+    .total{font-size:21px;font-weight:bold;margin-top:20px;color:var(--cyan)}
+    .checkout{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:20px}
+    input,textarea,select{width:100%;padding:13px;border-radius:8px;border:1px solid var(--line);background:#0b1322;color:white}
+    textarea{grid-column:1/-1;min-height:90px;resize:vertical}
+    .checkout button{grid-column:1/-1;padding:14px;background:var(--blue);color:white;border:0;border-radius:8px;font-weight:bold;cursor:pointer}
+    footer{margin-top:65px;padding:30px 20px;text-align:center;background:#0d1524;border-top:1px solid var(--line);color:var(--muted)}
+    @media(max-width:650px){.nav{flex-direction:column}nav{justify-content:center;gap:15px}.hero{margin:18px 12px;padding:40px 20px}.checkout{grid-template-columns:1fr}}
+  </style>
 </head>
 <body>
 
 <header>
-<div class="logo">VOLTRIX.</div>
-<nav>
-<a href="#">Home</a>
-<a href="#categories">Categories</a>
-<a href="#products">Products</a>
-<a href="#contact">Contact</a>
-<button class="cart-btn" onclick="goToCart()">🛒 Cart (<span id="cartCount">0</span>)</button>
-</nav>
+  <div class="nav">
+    <a class="logo" href="#">VOLTRIX</a>
+    <nav>
+      <a href="#home">Home</a>
+      <a href="#categories">Categories</a>
+      <a href="#products">Products</a>
+      <a href="#cart">Cart (<span id="cartCount">0</span>)</a>
+      <a href="#contact">Contact</a>
+    </nav>
+  </div>
 </header>
 
-<main>
-<div class="hero">
-<h1>POWER YOUR <span>IDEAS.</span></h1>
-<p>Discover electronic components, tools and technology essentials.</p>
-<a href="#products" class="main-btn">Explore Products →</a>
-</div>
-
-<section id="categories">
-<h2>Shop Categories</h2>
-<div class="categories">
-<div class="category"><span>🔌</span>Cables & Connectors</div>
-<div class="category"><span>🔋</span>Batteries & Chargers</div>
-<div class="category"><span>💡</span>Electronic Components</div>
-<div class="category"><span>🛠️</span>Tools & Equipment</div>
-<div class="category"><span>🖨️</span>3D Printing</div>
-<div class="category"><span>📡</span>Wireless Modules</div>
-</div>
+<section class="hero" id="home">
+  <h1>Power Your World With <span>VOLTRIX</span></h1>
+  <p>Discover electronics, accessories, chargers, cables and components. Quality products, great prices and easy online shopping.</p>
+  <button onclick="document.getElementById('products').scrollIntoView({behavior:'smooth'})">Shop Now</button>
 </section>
 
-<section id="products">
-<h2>Featured Products</h2>
-<p id="productMessage" class="status">Loading products...</p>
-<div class="products" id="productList"></div>
+<section class="section" id="categories">
+  <div class="section-head"><h2>Categories</h2></div>
+  <div class="categories">
+    <div class="category" onclick="filterCategory('Cables & Connectors')"><div class="emoji">🔌</div>Cables & Connectors</div>
+    <div class="category" onclick="filterCategory('Batteries & Chargers')"><div class="emoji">🔋</div>Batteries & Chargers</div>
+    <div class="category" onclick="filterCategory('Electronic Components')"><div class="emoji">💡</div>Electronic Components</div>
+    <div class="category" onclick="filterCategory('Tools & Equipment')"><div class="emoji">🛠️</div>Tools & Equipment</div>
+    <div class="category" onclick="filterCategory('3D Printing')"><div class="emoji">🖨️</div>3D Printing</div>
+    <div class="category" onclick="filterCategory('Wireless Modules')"><div class="emoji">📡</div>Wireless Modules</div>
+  </div>
 </section>
 
-<section id="cart">
-<h2>Your Shopping Cart 🛒</h2>
-<div class="cart-box">
-<div id="cartItems"></div>
-<div class="total">Total: EGP <span id="total">0</span></div>
-<button class="add-btn" onclick="checkout()">Proceed to Checkout →</button>
-</div>
+<section class="section" id="products">
+  <div class="section-head">
+    <h2>Our Products</h2>
+    <button class="btn" onclick="loadProducts()">Refresh</button>
+  </div>
+  <div class="products" id="productList">
+    <div class="empty">Loading products...</div>
+  </div>
 </section>
 
-<section id="checkout">
-<h2>Complete Your Order</h2>
-<div class="cart-box">
-<form id="checkoutForm">
-<label>Full Name</label>
-<input name="name" required minlength="3" placeholder="Your full name">
-
-<label>Phone Number</label>
-<input name="phone" type="tel" required pattern="01[0-9]{9}" placeholder="01xxxxxxxxx">
-
-<label>Governorate</label>
-<select name="governorate" required>
-<option value="">Choose Governorate</option>
-<option>Cairo</option>
-<option>Giza</option>
-<option>Alexandria</option>
-<option>Qalyubia</option>
-<option>Other</option>
-</select>
-
-<label>Full Address</label>
-<textarea name="address" required minlength="8" placeholder="Street, building, apartment..."></textarea>
-
-<label>Payment Method</label>
-<select name="payment" id="payment" required>
-<option value="Cash on Delivery">Cash on Delivery</option>
-<option value="Online Payment" disabled>Online Payment (Coming Soon)</option>
-</select>
-
-<div class="total">Order Total: EGP <span id="checkoutTotal">0</span></div>
-<button class="add-btn" type="submit">Place Demo Order</button>
-<p class="notice">Demo checkout only. Orders are not yet saved to the database.</p>
-</form>
-<div id="orderResult" class="status"></div>
-</div>
+<section class="section" id="cart">
+  <div class="section-head"><h2>Your Shopping Cart</h2></div>
+  <div class="cart-box">
+    <div id="cartItems" class="muted">Your cart is empty.</div>
+    <div class="total">Total: <span id="cartTotal">0</span> EGP</div>
+    <div class="checkout">
+      <input id="customerName" placeholder="Your full name">
+      <input id="customerPhone" placeholder="Phone number">
+      <input id="customerAddress" placeholder="Delivery address">
+      <select id="paymentMethod">
+        <option value="cod">Cash on Delivery</option>
+        <option value="online">Online Payment (coming soon)</option>
+      </select>
+      <textarea id="customerNotes" placeholder="Order notes (optional)"></textarea>
+      <button onclick="checkout()">Place Order</button>
+    </div>
+    <p class="muted" style="margin-top:12px;font-size:12px">Online payment is not activated yet. Orders are currently a storefront demo.</p>
+  </div>
 </section>
 
-</main>
+<section class="section" id="contact">
+  <h2>Contact VOLTRIX</h2>
+  <p class="muted" style="margin-top:12px">Have a question? Contact us for product information and support.</p>
+</section>
 
-<footer id="contact">
-<div class="logo">VOLTRIX.</div>
-<p>Electronics & Technology | Egypt</p>
-<p>© 2026 VOLTRIX. All rights reserved.</p>
+<footer>
+  <div class="logo">VOLTRIX</div>
+  <p style="margin-top:12px">Powering Your Everyday Technology.</p>
+  <p style="margin-top:8px">© 2026 VOLTRIX. All rights reserved.</p>
 </footer>
 
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script>
 const SUPABASE_URL = "https://zqzramrhfphvifmayycu.supabase.co";
 const SUPABASE_KEY = "sb_publishable_nw8wlcJkd8DHZ2DEmurqZw_y7EpvpVO";
 
-const db = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
-
 let products = [];
 let cart = [];
+let currentCategory = null;
 
-try {
- cart = JSON.parse(localStorage.getItem("voltrixCart") || "[]");
- if (!Array.isArray(cart)) cart = [];
-} catch {
- cart = [];
+async function loadProducts(){
+  const list = document.getElementById("productList");
+  list.innerHTML = '<div class="empty">Loading products...</div>';
+
+  try{
+    const response = await fetch(
+      `${SUPABASE_URL}/rest/v1/products?select=*&is_visible=eq.true&order=created_at.desc`,
+      {headers:{
+        apikey:SUPABASE_KEY,
+        Authorization:`Bearer ${SUPABASE_KEY}`
+      }}
+    );
+
+    if(!response.ok) throw new Error(await response.text());
+    products = await response.json();
+    renderProducts();
+  }catch(error){
+    list.innerHTML = '<div class="empty">Could not load products. Please try again later.</div>';
+    console.error(error);
+  }
 }
 
-const $ = id => document.getElementById(id);
+function renderProducts(){
+  const list = document.getElementById("productList");
+  const shown = currentCategory
+    ? products.filter(p=>p.category===currentCategory)
+    : products;
 
-function escapeHTML(value) {
- return String(value ?? "").replace(/[&<>"']/g, char => ({
-  "&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"
- })[char]);
+  if(!shown.length){
+    list.innerHTML = '<div class="empty">No products available in this category yet.</div>';
+    return;
+  }
+
+  list.innerHTML = shown.map(p=>`
+    <article class="product">
+      ${p.image_url ? `<img src="${escapeHTML(p.image_url)}" alt="${escapeHTML(p.name)}" onerror="this.style.display='none'">` : `<div style="height:180px;display:grid;place-items:center;font-size:45px">📦</div>`}
+      <div class="product-info">
+        <h3>${escapeHTML(p.name)}</h3>
+        <p>${escapeHTML(p.description||"")}</p>
+        <div class="price">${Number(p.price).toLocaleString()} EGP</div>
+        <button onclick="addToCart('${String(p.id).replace(/'/g,"")}')">Add to Cart</button>
+      </div>
+    </article>
+  `).join("");
 }
 
-function money(value) {
- return Number(value || 0).toLocaleString("en-US");
+function escapeHTML(value){
+  return String(value??"").replace(/[&<>"']/g,c=>({
+    "&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"
+  }[c]));
 }
 
-function showMessage(id, message, isError=false) {
- const el = $(id);
- el.textContent = message;
- el.style.color = isError ? "#ff7885" : "#20d9ff";
+function filterCategory(category){
+  currentCategory = currentCategory===category ? null : category;
+  document.getElementById("products").scrollIntoView({behavior:"smooth"});
+  renderProducts();
 }
 
-async function loadProducts() {
- showMessage("productMessage", "Loading products...");
- const {data,error} = await db
-  .from("products")
-  .select("*")
-  .eq("active", true)
-  .order("created_at", {ascending:false});
+function addToCart(id){
+  const product = products.find(p=>String(p.id)===String(id));
+  if(!product) return;
 
- if(error) {
-  showMessage("productMessage", "Could not load products: " + error.message, true);
-  return;
- }
+  const item = cart.find(i=>String(i.id)===String(id));
+  if(item) item.quantity++;
+  else cart.push({...product,quantity:1});
 
- products = data || [];
- renderProducts();
- showMessage("productMessage", products.length ? "" : "No products available yet.");
+  renderCart();
 }
 
-function renderProducts() {
- $("productList").innerHTML = products.map(p => {
-  const icon = p.image_url
-   ? `<img src="${escapeHTML(p.image_url)}" alt="" style="width:100%;height:100%;object-fit:contain">`
-   : "🔌";
-  const stock = Number(p.stock || 0);
-
-  return `<div class="product">
-   <div class="image">${icon}</div>
-   <h3>${escapeHTML(p.name)}</h3>
-   <p>${escapeHTML(p.description || "")}</p>
-   <div class="price">EGP ${money(p.price)}</div>
-   <p>${stock > 0 ? "In stock: " + stock : "Out of stock"}</p>
-   <button class="add-btn" data-add="${escapeHTML(p.id)}" ${stock <= 0 ? "disabled" : ""}>Add to Cart +</button>
-  </div>`;
- }).join("");
+function removeFromCart(id){
+  cart = cart.filter(i=>String(i.id)!==String(id));
+  renderCart();
 }
 
-$("productList").addEventListener("click", e => {
- const button = e.target.closest("[data-add]");
- if(button) addToCart(button.dataset.add);
-});
+function renderCart(){
+  const container = document.getElementById("cartItems");
+  const count = cart.reduce((sum,i)=>sum+i.quantity,0);
+  const total = cart.reduce((sum,i)=>sum+Number(i.price)*i.quantity,0);
 
-function saveCart() {
- localStorage.setItem("voltrixCart", JSON.stringify(cart));
- renderCart();
-}
+  document.getElementById("cartCount").textContent=count;
+  document.getElementById("cartTotal").textContent=total.toLocaleString();
 
-function addToCart(id) {
- const product = products.find(p => String(p.id) === String(id));
- if(!product) return;
+  if(!cart.length){
+    container.innerHTML="Your cart is empty.";
+    return;
+  }
 
- const item = cart.find(p => String(p.id) === String(id));
- const currentQty = item ? item.quantity : 0;
-
- if(currentQty >= Number(product.stock || 0)) {
-  alert("Maximum available stock reached.");
-  return;
- }
-
- if(item) item.quantity++;
- else cart.push({
-  id:product.id,
-  name:product.name,
-  price:Number(product.price),
-  icon:"🔌",
-  quantity:1
- });
-
- saveCart();
-}
-
-function changeQuantity(id, amount) {
- const item = cart.find(p => String(p.id) === String(id));
- if(!item) return;
-
- const product = products.find(p => String(p.id) === String(id));
- const next = item.quantity + amount;
-
- if(next > 0 && product && next > Number(product.stock || 0)) {
-  alert("Maximum available stock reached.");
-  return;
- }
-
- item.quantity = next;
- if(item.quantity <= 0) cart = cart.filter(p => String(p.id) !== String(id));
- saveCart();
-}
-
-function removeItem(id) {
- cart = cart.filter(p => String(p.id) !== String(id));
- saveCart();
-}
-
-function getTotal() {
- return cart.reduce((sum,p) => sum + Number(p.price)*p.quantity, 0);
-}
-
-function renderCart() {
- const count = cart.reduce((sum,p) => sum + p.quantity, 0);
- $("cartCount").textContent = count;
- $("total").textContent = money(getTotal());
- $("checkoutTotal").textContent = money(getTotal());
-
- if(!cart.length) {
-  $("cartItems").innerHTML = '<p class="empty">Your cart is empty. Add some products!</p>';
-  return;
- }
-
- $("cartItems").innerHTML = cart.map(p => `
-  <div class="cart-item">
-   <div>
-    <strong>${escapeHTML(p.name)}</strong>
-    <p class="notice">EGP ${money(p.price)} each</p>
-    <div class="qty-controls">
-     <button class="small-btn" data-minus="${escapeHTML(p.id)}">−</button>
-     <span>${p.quantity}</span>
-     <button class="small-btn" data-plus="${escapeHTML(p.id)}">+</button>
+  container.innerHTML=cart.map(i=>`
+    <div class="cart-item">
+      <span>${escapeHTML(i.name)} × ${i.quantity}</span>
+      <span>${(Number(i.price)*i.quantity).toLocaleString()} EGP
+        <button onclick="removeFromCart('${String(i.id).replace(/'/g,"")}')">Remove</button>
+      </span>
     </div>
-   </div>
-   <div>
-    <strong>EGP ${money(p.price*p.quantity)}</strong>
-    <button class="danger small-btn" data-remove="${escapeHTML(p.id)}">Remove</button>
-   </div>
-  </div>`).join("");
+  `).join("");
 }
 
-$("cartItems").addEventListener("click", e => {
- const minus = e.target.closest("[data-minus]");
- const plus = e.target.closest("[data-plus]");
- const remove = e.target.closest("[data-remove]");
+function checkout(){
+  if(!cart.length){
+    alert("Your cart is empty.");
+    return;
+  }
 
- if(minus) changeQuantity(minus.dataset.minus,-1);
- if(plus) changeQuantity(plus.dataset.plus,1);
- if(remove) removeItem(remove.dataset.remove);
-});
+  const name=document.getElementById("customerName").value.trim();
+  const phone=document.getElementById("customerPhone").value.trim();
+  const address=document.getElementById("customerAddress").value.trim();
 
-function goToCart() {
- $("cart").scrollIntoView({behavior:"smooth"});
+  if(!name||!phone||!address){
+    alert("Please enter your name, phone number and address.");
+    return;
+  }
+
+  if(document.getElementById("paymentMethod").value==="online"){
+    alert("Online payment is not activated yet. Please choose Cash on Delivery.");
+    return;
+  }
+
+  alert("This checkout is a demo and does not save orders yet. Order submission needs to be connected to the database.");
 }
 
-function checkout() {
- if(!cart.length) return alert("Your cart is empty!");
- $("checkout").scrollIntoView({behavior:"smooth"});
-}
-
-$("checkoutForm").addEventListener("submit", e => {
- e.preventDefault();
- if(!cart.length) return alert("Your cart is empty!");
-
- const orderNumber = "VX-" + Date.now().toString().slice(-8);
- const customer = new FormData(e.target).get("name");
-
- $("orderResult").textContent =
-  "Demo only: no order was saved. Reference: " + orderNumber +
-  ". Thank you, " + customer + ".";
-
- cart = [];
- saveCart();
- e.target.reset();
-});
-
-async function start() {
- renderCart();
- await loadProducts();
-}
-
-start();
+loadProducts();
+renderCart();
 </script>
 </body>
 </html>
