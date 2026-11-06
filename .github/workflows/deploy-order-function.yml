@@ -5,6 +5,7 @@ on:
     branches: [main]
     paths:
       - "supabase/functions/create-order/**"
+      - "supabase/functions/list-customers/**"
       - "supabase/config.toml"
       - ".github/workflows/deploy-order-function.yml"
   workflow_dispatch:
@@ -25,3 +26,4 @@ jobs:
         run: |
           supabase link --project-ref zqzramrhfphvifmayycu
           supabase functions deploy create-order --project-ref zqzramrhfphvifmayycu --yes
+          supabase functions deploy list-customers --project-ref zqzramrhfphvifmayycu --yes
