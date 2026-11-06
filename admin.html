@@ -289,19 +289,31 @@ msg("orderMsg","Loading...");
 const {data,error}=await db.from("orders").select("*").order("created_at",{ascending:false});
 if(error){msg("orderMsg",error.message,true);return}
 orders=data||[];
+let orderItems=[];
+if(orders.length){
+ const {data:lines,error:linesError}=await db.from("order_items").select("*").in("order_id",orders.map(o=>o.id));
+ if(linesError){msg("orderMsg","Could not load order items: "+linesError.message,true);return}
+ orderItems=lines||[];
+}
 msg("orderMsg",orders.length+" orders found.");
-$("orderList").innerHTML=orders.map(o=>`
+$("orderList").innerHTML=orders.map(o=>{
+ const lines=orderItems.filter(x=>String(x.order_id)===String(o.id));
+ return `
 <div class="item">
 <strong>${safe(o.order_number||o.id)}</strong>
 <p>${safe(o.customer_name)} | ${safe(o.phone)}</p>
 <p>${safe(o.governorate)} | ${safe(o.address)}</p>
-<p>EGP ${money(o.total)} | ${safe(o.payment_method)}</p>
+<p>Payment: ${safe(o.payment_method)} | Total: EGP ${money(o.total)}</p>
+<p>Placed: ${o.created_at?new Date(o.created_at).toLocaleString():"—"}</p>
+<strong>Products ordered:</strong>
+${lines.map(x=>`<p>• ${safe(x.product_name)} × ${money(x.quantity)} — EGP ${money(Number(x.unit_price)*Number(x.quantity))}</p>`).join("")||"<p>Order items unavailable.</p>"}
 <label>Status</label>
 <select data-status="${safe(o.id)}">
-${["pending","confirmed","processing","shipped","delivered","cancelled"].map(s=>`<option ${o.status===s?"selected":""}>${s}</option>`).join("")}
+${["new","pending","confirmed","processing","shipped","delivered","cancelled"].map(s=>`<option ${o.status===s?"selected":""}>${s}</option>`).join("")}
 </select>
 <button data-update="${safe(o.id)}">Update Status</button>
-</div>`).join("")||"No saved orders yet.";
+</div>`;
+}).join("")||"No saved orders yet.";
 }
 $("refreshOrders").onclick=loadOrders;
 $("orderList").onclick=async e=>{
