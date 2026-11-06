@@ -22,6 +22,18 @@ main{min-width:0}.hero{min-height:340px;border:1px solid #174c91;border-radius:1
 .cart-section{max-width:1200px;margin:45px auto;padding:0 18px}.cart-box{background:var(--panel);padding:22px;border:1px solid var(--line);border-radius:14px}.cart-item{display:flex;justify-content:space-between;gap:15px;padding:12px 0;border-bottom:1px solid var(--line)}.cart-item button{background:#b52f42;color:white;border:0;padding:5px 10px;border-radius:6px}.total{font-size:21px;font-weight:bold;margin-top:20px;color:var(--cyan)}.checkout{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:20px}input,textarea,select{width:100%;padding:13px;border-radius:8px;border:1px solid var(--line);background:#0b1322;color:white}textarea{grid-column:1/-1;min-height:90px}.checkout button{grid-column:1/-1;padding:14px;background:var(--blue);color:white;border:0;border-radius:8px;font-weight:bold}.checkout button:disabled{opacity:.6;cursor:wait}.form-message{grid-column:1/-1;display:none;padding:13px 15px;border:1px solid #e05b70;background:#351925;color:#ffd9df;border-radius:9px;font-size:14px;line-height:1.5}.form-message.show{display:block}.form-message.success{border-color:#24d6a0;background:#123b32;color:#d9fff1}.checkout input.invalid{border-color:#ff647d;box-shadow:0 0 0 2px #ff647d22}
 footer{margin-top:55px;padding:30px;text-align:center;background:#0d1524;border-top:1px solid var(--line);color:var(--muted)}footer .brand{justify-content:center}
 @keyframes rise{from{opacity:0;transform:translateY(14px)}to{opacity:1;transform:translateY(0)}}@media(max-width:1050px){.layout{grid-template-columns:240px 1fr}.shortcats{grid-template-columns:repeat(4,1fr)}.benefits{grid-template-columns:repeat(2,1fr)}.hero-art{opacity:.55;right:0}}@media(max-width:720px){.topbar{grid-template-columns:1fr auto;gap:12px}.brand{font-size:24px}.search{grid-column:1/-1;grid-row:2}.head-actions{gap:12px;font-size:12px}.navrow nav{gap:16px;overflow:auto}.layout{display:block}.sidebar{display:none}.hero{min-height:300px;padding:28px}.hero-art{right:-10%;opacity:.25;width:65%}.shortcats{grid-template-columns:repeat(3,1fr)}.benefits{grid-template-columns:repeat(2,1fr)}.products{grid-template-columns:repeat(2,minmax(0,1fr))}.checkout{grid-template-columns:1fr}}@media(prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important;scroll-behavior:auto!important}}
+
+/* Contact support */
+.support-panel{max-width:850px;margin-top:18px;background:linear-gradient(145deg,#14233a,#0e1728);border:1px solid #2b4262;border-radius:16px;padding:22px}
+.support-form{display:grid;grid-template-columns:1fr 1fr;gap:13px;margin-top:18px}
+.support-form label{display:block;color:#c9d8ed;font-size:13px;font-weight:700;margin-bottom:7px}
+.support-field{min-width:0}
+.support-form input,.support-form select,.support-form textarea{margin:0;background:#0b1322}
+.support-form textarea{grid-column:1/-1;min-height:135px;resize:vertical}
+.support-form button{grid-column:1/-1;border:0;border-radius:9px;padding:14px;background:linear-gradient(90deg,#087cff,#00bce9);color:white;font-weight:900}
+.support-form button:disabled{opacity:.65;cursor:wait}
+.support-note{color:var(--muted);font-size:12px;line-height:1.5;margin-top:12px}
+@media(max-width:720px){.support-form{grid-template-columns:1fr}.support-form textarea,.support-form button{grid-column:1}}
 </style>
 </head>
 <body>
@@ -49,7 +61,22 @@ footer{margin-top:55px;padding:30px;text-align:center;background:#0d1524;border-
  </main>
 </div>
 <section class="cart-section" id="cart"><div class="section-head"><h2>Your Shopping Cart</h2></div><div class="cart-box"><div id="cartItems" class="muted">Your cart is empty.</div><div class="total">Total: <span id="cartTotal">0</span> EGP</div><div class="checkout"><div id="checkoutMessage" class="form-message" role="alert" aria-live="polite"></div><input id="customerName" placeholder="Your full name"><input id="customerPhone" type="tel" inputmode="numeric" maxlength="11" placeholder="Egyptian mobile number (11 digits)" autocomplete="tel" required><input id="customerGovernorate" placeholder="Governorate (e.g. Cairo)" required><input id="customerAddress" placeholder="Delivery address" required><select id="paymentMethod"><option value="cod">Cash on Delivery</option><option value="online">Online Payment (coming soon)</option></select><textarea id="customerNotes" placeholder="Order notes (optional)"></textarea><button onclick="checkout()">Place Order</button></div><p class="muted" style="margin-top:12px;font-size:12px">Online payment is not activated yet. Orders are currently a storefront demo.</p></div></section>
-<section class="cart-section" id="contact"><h2>Contact VOLTRIX</h2><p class="muted" style="margin-top:10px">Questions about a product? We're here to help.</p></section>
+<section class="cart-section" id="contact">
+ <h2>Contact Support</h2>
+ <p class="muted" style="margin-top:10px">Need help with an order, product, or your account? Send our support team a message.</p>
+ <div class="support-panel">
+  <form id="supportForm" class="support-form">
+   <div class="support-field"><label for="supportName">Full name</label><input id="supportName" maxlength="100" autocomplete="name" required placeholder="Your full name"></div>
+   <div class="support-field"><label for="supportEmail">Email address</label><input id="supportEmail" type="email" maxlength="254" autocomplete="email" required placeholder="you@example.com"></div>
+   <div class="support-field"><label for="supportPhone">Phone number (optional)</label><input id="supportPhone" type="tel" inputmode="numeric" maxlength="20" autocomplete="tel" placeholder="Your phone number"></div>
+   <div class="support-field"><label for="supportCategory">What do you need help with?</label><select id="supportCategory" required><option value="">Choose a topic</option><option>Order status</option><option>Product question</option><option>Payment</option><option>Account and sign-in</option><option>Delivery</option><option>Other</option></select></div>
+   <div class="support-field" style="grid-column:1/-1"><label for="supportMessage">Message</label><textarea id="supportMessage" maxlength="3000" required placeholder="Tell us how we can help..."></textarea></div>
+   <div id="supportFeedback" class="form-message" role="status" aria-live="polite" style="grid-column:1/-1"></div>
+   <button id="supportSubmit" type="submit">Send Message</button>
+  </form>
+  <p class="support-note">Please don't include passwords or payment card details in your message.</p>
+ </div>
+</section>
 <div id="cartToast" class="toast" role="status">Added to cart ✓</div><footer><div class="brand"><span class="brand-mark">ϟ</span>VOLTRIX</div><p style="margin-top:10px">Powering Your Everyday Technology · © 2026 VOLTRIX</p></footer>
 <script>
 const SUPABASE_URL="https://zqzramrhfphvifmayycu.supabase.co";
@@ -185,6 +212,62 @@ async function checkout(){
  }catch(error){showCheckoutMessage(error.message||"Could not submit your order. Please try again.");}
  finally{button.disabled=false;button.textContent="Place Order";}
 }
+
+async function prepareSupportForm(){
+ const {data}=await authClient.auth.getSession();
+ const user=data.session?.user;
+ if(user){
+  const nameField=document.getElementById("supportName");
+  const emailField=document.getElementById("supportEmail");
+  if(emailField&&!emailField.value)emailField.value=user.email||"";
+  if(nameField&&!nameField.value){
+   const metadata=user.user_metadata||{};
+   nameField.value=metadata.full_name||metadata.name||"";
+  }
+ }
+}
+function supportFeedback(message,success=false){
+ const box=document.getElementById("supportFeedback");
+ box.textContent=message;
+ box.className="form-message show"+(success?" success":"");
+}
+document.getElementById("supportForm").addEventListener("submit",async e=>{
+ e.preventDefault();
+ const button=document.getElementById("supportSubmit");
+ const name=document.getElementById("supportName").value.trim();
+ const email=document.getElementById("supportEmail").value.trim();
+ const phone=document.getElementById("supportPhone").value.trim();
+ const category=document.getElementById("supportCategory").value;
+ const message=document.getElementById("supportMessage").value.trim();
+ if(!name||!email||!category||message.length<10){
+  supportFeedback("Please complete all required fields. Your message should be at least 10 characters.");
+  return;
+ }
+ if(phone&&!/^[0-9+()\-\s]{7,20}$/.test(phone)){
+  supportFeedback("Please enter a valid phone number.");
+  return;
+ }
+ button.disabled=true;button.textContent="Sending...";
+ try{
+  const {data:sessionData}=await authClient.auth.getSession();
+  const {error}=await authClient.from("support_messages").insert({
+   user_id:sessionData.session?.user?.id||null,
+   name,email,phone:phone||null,category,message
+  });
+  if(error)throw error;
+  e.target.reset();
+  supportFeedback("Your message has been sent. Our support team will review it soon.",true);
+  prepareSupportForm();
+ }catch(error){
+  console.error("Support message error:",error);
+  supportFeedback("We couldn't send your message. Please try again in a moment.");
+ }finally{
+  button.disabled=false;button.textContent="Send Message";
+ }
+});
+prepareSupportForm();
+authClient.auth.onAuthStateChange(()=>prepareSupportForm());
+
 buildCategories();loadProducts();renderCart();
 </script>
 </body></html>
