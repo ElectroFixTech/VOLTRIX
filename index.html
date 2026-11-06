@@ -195,7 +195,8 @@ async function checkout(){
  if(!/^(010|011|012|015)\d{8}$/.test(phone))return showCheckoutMessage("Invalid Egyptian mobile number. Enter 11 digits starting with 010, 011, 012 or 015.","error","customerPhone");
  if(!governorate)return showCheckoutMessage("Please enter your governorate.","error","customerGovernorate");
  if(!address)return showCheckoutMessage("Please enter your delivery address.","error","customerAddress");
- const paymentReference=document.getElementById("paymentReference").value.trim();\n if(!paymentReference)return showCheckoutMessage("Please enter your InstaPay transaction reference.","error","paymentReference");
+ const paymentReference=document.getElementById("paymentReference").value.trim();
+ if(!paymentReference)return showCheckoutMessage("Please enter your InstaPay transaction reference.","error","paymentReference");
  const button=document.querySelector(".checkout button");
  button.disabled=true;button.textContent="Sending order...";
  try{
