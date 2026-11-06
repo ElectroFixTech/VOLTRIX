@@ -1,324 +1,91 @@
-
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <meta name="theme-color" content="#080d18">
-  <title>VOLTRIX | Electronics Store</title>
-  <meta name="description" content="Shop electronics, cables, chargers, components and tools at VOLTRIX.">
-  <style>
-    *{box-sizing:border-box;margin:0;padding:0}
-    :root{--bg:#080d18;--panel:#111a2b;--line:#243149;--text:#f4f7ff;--muted:#9aa9c1;--blue:#397bff;--cyan:#19d3e6}
-    body{font-family:Arial,sans-serif;background:var(--bg);color:var(--text);overflow-x:hidden}
-    html{scroll-behavior:smooth}
-    .logo{transition:transform .25s ease,text-shadow .25s ease}
-    .logo:hover{transform:scale(1.06);text-shadow:0 0 18px #19d3e688}
-    .hero{position:relative;overflow:hidden;animation:heroEnter .8s ease both}
-    .hero:after{content:"";position:absolute;width:320px;height:320px;border-radius:50%;right:-110px;top:-150px;background:#19d3e61c;filter:blur(8px);pointer-events:none}
-    .hero h1{animation:heroText .8s .12s both}
-    .hero p{animation:heroText .8s .25s both}
-    .hero button,.btn,.product button{transition:transform .2s ease,box-shadow .2s ease,background .2s ease}
-    .hero button:hover,.btn:hover,.product button:hover{transform:translateY(-3px);box-shadow:0 8px 22px #397bff55}
-    .category{transition:transform .25s ease,border-color .25s ease,box-shadow .25s ease}
-    .category:hover{box-shadow:0 10px 25px #19d3e61a}
-    .product{transition:transform .25s ease,border-color .25s ease,box-shadow .25s ease;animation:cardIn .55s both}
-    .product:hover{transform:translateY(-7px);border-color:#397bff;box-shadow:0 14px 30px #0005}
-    .product img{transition:transform .35s ease}
-    .product:hover img{transform:scale(1.045)}
-    .reveal{opacity:0;transform:translateY(24px);transition:opacity .65s ease,transform .65s ease}
-    .reveal.visible{opacity:1;transform:translateY(0)}
-    @keyframes heroEnter{from{opacity:0;transform:translateY(18px)}to{opacity:1;transform:translateY(0)}}
-    @keyframes heroText{from{opacity:0;transform:translateY(14px)}to{opacity:1;transform:translateY(0)}}
-    @keyframes cardIn{from{opacity:0;transform:translateY(16px)}to{opacity:1;transform:translateY(0)}}
-    .section.reveal-on-scroll{opacity:0;transform:translateY(22px);transition:opacity .7s ease,transform .7s ease}
-    .section.reveal-on-scroll.is-visible{opacity:1;transform:translateY(0)}
-    @media(prefers-reduced-motion:reduce){*,*::before,*::after{scroll-behavior:auto!important;animation-duration:.01ms!important;animation-iteration-count:1!important;transition-duration:.01ms!important}.reveal{opacity:1;transform:none}}
-    a{color:inherit;text-decoration:none}
-    header{background:#0d1524;border-bottom:1px solid var(--line);position:sticky;top:0;z-index:5}
-    .nav{max-width:1200px;margin:auto;padding:18px 22px;display:flex;align-items:center;justify-content:space-between;gap:20px}
-    .logo{font-size:26px;font-weight:900;letter-spacing:2px;color:var(--cyan)}
-    nav{display:flex;gap:22px;flex-wrap:wrap}
-    nav a{color:var(--muted);font-size:14px}
-    nav a:hover{color:var(--cyan)}
-    .hero{max-width:1200px;margin:35px auto;padding:65px 25px;background:linear-gradient(120deg,#142b50,#101b32 60%,#102d39);border:1px solid var(--line);border-radius:22px}
-    .hero h1{font-size:clamp(35px,6vw,65px);margin-bottom:18px}
-    .hero h1 span{color:var(--cyan)}
-    .hero p{color:var(--muted);font-size:17px;line-height:1.8;max-width:600px}
-    .hero button,.btn{border:0;background:var(--blue);color:white;padding:13px 22px;border-radius:9px;font-weight:bold;cursor:pointer;margin-top:24px}
-    .section{max-width:1200px;margin:55px auto;padding:0 22px}
-    .section-head{display:flex;justify-content:space-between;align-items:center;gap:15px;margin-bottom:24px}
-    .section h2{font-size:27px}
-    .muted{color:var(--muted)}
-    .categories{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:15px}
-    .category{background:var(--panel);border:1px solid var(--line);padding:23px 12px;border-radius:13px;text-align:center;cursor:pointer}
-    .category:hover{border-color:var(--cyan);transform:translateY(-3px)}
-    .category.active{border-color:var(--cyan);background:linear-gradient(145deg,#15334a,#111a2b);box-shadow:0 0 0 2px #19d3e633,0 10px 25px #19d3e622}
-    .category.active{border-color:var(--cyan);background:linear-gradient(145deg,#15334a,#111a2b);box-shadow:0 0 0 2px #19d3e633,0 10px 25px #19d3e622}
-    .category .emoji{font-size:30px;margin-bottom:12px}
-    .products{display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:18px}
-    .product{background:var(--panel);border:1px solid var(--line);border-radius:15px;overflow:hidden}
-    .product img{width:100%;height:180px;object-fit:contain;background:#fff;padding:12px}
-    .product-info{padding:17px}
-    .product-info h3{margin-bottom:9px}
-    .product-info p{color:var(--muted);font-size:14px;line-height:1.5}
-    .price{font-size:20px;font-weight:bold;color:var(--cyan);margin:14px 0}
-    .product button{width:100%;padding:11px;border:0;border-radius:8px;background:var(--blue);color:white;font-weight:bold;cursor:pointer}
-    .empty{padding:35px;text-align:center;background:var(--panel);border:1px dashed var(--line);border-radius:12px;color:var(--muted);grid-column:1/-1}
-    .cart-box{background:var(--panel);padding:22px;border:1px solid var(--line);border-radius:14px}
-    .cart-item{display:flex;justify-content:space-between;gap:15px;padding:12px 0;border-bottom:1px solid var(--line)}
-    .cart-item button{background:#b52f42;color:white;border:0;padding:5px 10px;border-radius:6px;cursor:pointer}
-    .total{font-size:21px;font-weight:bold;margin-top:20px;color:var(--cyan)}
-    .checkout{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:20px}
-    input,textarea,select{width:100%;padding:13px;border-radius:8px;border:1px solid var(--line);background:#0b1322;color:white}
-    textarea{grid-column:1/-1;min-height:90px;resize:vertical}
-    .checkout button{grid-column:1/-1;padding:14px;background:var(--blue);color:white;border:0;border-radius:8px;font-weight:bold;cursor:pointer}
-    footer{margin-top:65px;padding:30px 20px;text-align:center;background:#0d1524;border-top:1px solid var(--line);color:var(--muted)}
-    @media(max-width:650px){.nav{flex-direction:column}nav{justify-content:center;gap:15px}.hero{margin:18px 12px;padding:40px 20px}.checkout{grid-template-columns:1fr}}
-  </style>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="theme-color" content="#080d18"><title>VOLTRIX | Electronics Store</title>
+<meta name="description" content="Electronics, components, tools and 3D printing supplies at VOLTRIX.">
+<style>
+:root{--bg:#080d18;--panel:#111a2b;--panel2:#17243a;--line:#293a56;--text:#f4f7ff;--muted:#9aabc4;--blue:#087cff;--cyan:#19d3e6}
+*{box-sizing:border-box;margin:0;padding:0}html{scroll-behavior:smooth}body{font-family:Inter,Arial,sans-serif;background:radial-gradient(ellipse at 65% 0,#10264a 0,transparent 38%),var(--bg);color:var(--text);overflow-x:hidden}a{color:inherit;text-decoration:none}button{font:inherit;cursor:pointer}
+header{position:sticky;top:0;z-index:20;background:#080e1bee;border-bottom:1px solid var(--line);backdrop-filter:blur(16px)}
+.topbar{max-width:1600px;margin:auto;padding:14px 24px;display:grid;grid-template-columns:270px minmax(180px,1fr) auto;gap:26px;align-items:center}
+.brand{display:flex;align-items:center;gap:12px;font-size:30px;font-weight:950;letter-spacing:2px}.brand-mark{width:48px;height:48px;display:grid;place-items:center;background:linear-gradient(145deg,#09b9ff,#174cff);clip-path:polygon(50% 0,100% 100%,58% 78%,35% 100%,0 100%);font-size:27px;color:#061326}.brand span{color:var(--cyan)}.tagline{display:block;font-size:10px;letter-spacing:1.4px;color:var(--muted);font-weight:600;margin-top:1px}
+.search{position:relative}.search input{width:100%;border:1px solid #314361;background:#17243a;border-radius:30px;padding:16px 22px 16px 50px;color:white;outline:none;font-size:15px}.search:before{content:"⌕";position:absolute;left:19px;top:5px;font-size:30px;color:#dceaff}.head-actions{display:flex;gap:22px;align-items:center;color:#dbe8ff;font-size:14px}.head-actions a:hover{color:var(--cyan)}
+.navrow{border-top:1px solid #1a2a43}.navrow nav{max-width:1600px;margin:auto;padding:12px 24px;display:flex;gap:34px;align-items:center}.navrow a{font-weight:700;font-size:14px;color:#dce8ff}.navrow a:hover{color:var(--cyan)}.allcats{background:var(--blue);padding:12px 22px;border-radius:10px}
+.layout{max-width:1600px;margin:16px auto;padding:0 14px;display:grid;grid-template-columns:290px minmax(0,1fr);gap:14px}.sidebar{display:flex;flex-direction:column;gap:12px}.sidecats{background:linear-gradient(160deg,#111d31,#0d1627);border:1px solid var(--line);border-radius:15px;overflow:hidden}.side-title{padding:17px 18px;border-bottom:1px solid var(--line);font-size:17px;font-weight:800}.catlink{width:100%;border:0;border-bottom:1px solid #1c2a40;background:transparent;color:#e7efff;text-align:left;padding:10px 14px;display:flex;align-items:center;gap:12px;font-size:13px;transition:.2s}.catlink:last-child{border-bottom:0}.catlink:hover,.catlink.active{background:#123252;color:#42e4f4}.caticon{width:22px;text-align:center;font-size:18px}
+.promo{min-height:200px;border:1px solid #4b39ce;border-radius:14px;padding:22px;background:radial-gradient(circle at 80% 75%,#3726a9,transparent 42%),linear-gradient(135deg,#111c55,#090e20);display:flex;flex-direction:column;justify-content:center;overflow:hidden}.promo h3{font-size:26px}.promo p{color:#a9dfff;margin:8px 0 16px}.promo a{background:#6b39ed;border-radius:30px;padding:10px 15px;width:max-content;font-weight:700;font-size:13px}
+main{min-width:0}.hero{min-height:340px;border:1px solid #174c91;border-radius:18px;overflow:hidden;position:relative;padding:42px;display:flex;align-items:center;background:radial-gradient(ellipse at 78% 50%,#0758b9 0,transparent 36%),linear-gradient(105deg,#07162f,#09285a 55%,#080f27);isolation:isolate}.hero:before{content:"";position:absolute;inset:0;z-index:-1;opacity:.22;background-image:linear-gradient(90deg,#17a8ff 1px,transparent 1px),linear-gradient(#17a8ff 1px,transparent 1px);background-size:35px 35px;mask-image:linear-gradient(90deg,transparent,#000)}.hero-copy{max-width:520px}.hero-kicker{color:var(--cyan);font-weight:800;letter-spacing:3px;font-size:12px}.hero h1{font-size:clamp(38px,5vw,68px);line-height:1.02;margin:13px 0}.hero h1 span{color:#22baff}.hero p{font-size:17px;color:#c2d7f6;line-height:1.6}.primary{border:0;background:linear-gradient(90deg,#087cff,#00bce9);color:white;padding:14px 25px;border-radius:30px;font-weight:800;margin-top:22px;box-shadow:0 8px 28px #007cff55}.hero-art{position:absolute;right:4%;top:50%;transform:translateY(-50%);width:42%;height:85%;display:grid;place-items:center}.chip-art{width:min(300px,80%);aspect-ratio:1.15;border:2px solid #27baff;border-radius:28px;background:linear-gradient(145deg,#124e91,#07162e);box-shadow:0 0 35px #00aaffaa,inset 0 0 30px #00aaff44;transform:rotate(-12deg);display:grid;place-items:center;font-size:100px;position:relative}.chip-art:before,.chip-art:after{content:"";position:absolute;inset:-18px;border:2px dashed #15c9ff;border-radius:34px;opacity:.55}.chip-art:after{inset:15px;border:1px solid #5deaff;border-radius:15px}.benefits{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin:14px 0 24px}.benefit{background:linear-gradient(120deg,#151f32,#101827);border:1px solid #263750;border-radius:12px;padding:15px;display:flex;align-items:center;gap:12px}.benefit b{display:block;font-size:13px}.benefit small{color:var(--muted);font-size:12px}.benefit i{font-style:normal;font-size:26px;color:#20caff}
+.shortcats{display:grid;grid-template-columns:repeat(7,minmax(0,1fr));gap:10px;margin-bottom:27px}.shortcut{background:linear-gradient(145deg,#15243a,#0d1728);border:1px solid #2a3d59;border-radius:12px;padding:14px 7px;text-align:center;cursor:pointer;transition:.2s;min-width:0}.shortcut:hover{border-color:var(--cyan);transform:translateY(-4px)}.shortcut .emoji{font-size:32px;display:block;margin-bottom:9px}.shortcut span:last-child{font-size:12px;font-weight:700;line-height:1.25;display:block}
+.section-head{display:flex;align-items:center;justify-content:space-between;margin:20px 0 14px;gap:12px}.section-head h2{font-size:23px}.section-head h2:before{content:"";display:inline-block;width:7px;height:25px;border-radius:5px;background:var(--cyan);margin-right:12px;vertical-align:-5px}.section-head button{border:0;background:transparent;color:#26bfff;font-weight:700}
+.products{display:grid;grid-template-columns:repeat(auto-fill,minmax(190px,1fr));gap:13px}.product{background:linear-gradient(145deg,#17243a,#101827);border:1px solid #2a3b55;border-radius:14px;overflow:hidden;transition:.25s;animation:rise .5s both}.product:hover{transform:translateY(-5px);border-color:#178dff;box-shadow:0 14px 32px #0006}.product-media{height:170px;background:linear-gradient(145deg,#f5f8ff,#dfe9f7);display:grid;place-items:center;overflow:hidden}.product-media img{width:100%;height:100%;object-fit:contain;padding:12px}.art-placeholder{width:100%;height:100%;display:grid;place-items:center;color:#0b4b89;position:relative;background:radial-gradient(circle,#fff,#d9e9ff)}.art-placeholder span{font-size:64px;filter:drop-shadow(0 8px 7px #1c4d7a55)}.product-info{padding:13px}.product-info h3{font-size:14px;line-height:1.35;min-height:38px}.product-info p{color:var(--muted);font-size:12px;line-height:1.4;margin-top:5px;min-height:30px}.price{font-size:19px;font-weight:900;color:#25c9ff;margin:10px 0}.stock{font-size:11px;color:#9ee9b9;background:#123d2b;border-radius:20px;padding:5px 9px;display:inline-block;margin-bottom:10px}.product button{width:100%;border:0;border-radius:8px;background:#087cff;color:white;padding:10px;font-weight:800}.empty{padding:28px;text-align:center;background:var(--panel);border:1px dashed var(--line);border-radius:12px;color:var(--muted);grid-column:1/-1;overflow-wrap:anywhere}
+.cart-section{max-width:1200px;margin:45px auto;padding:0 18px}.cart-box{background:var(--panel);padding:22px;border:1px solid var(--line);border-radius:14px}.cart-item{display:flex;justify-content:space-between;gap:15px;padding:12px 0;border-bottom:1px solid var(--line)}.cart-item button{background:#b52f42;color:white;border:0;padding:5px 10px;border-radius:6px}.total{font-size:21px;font-weight:bold;margin-top:20px;color:var(--cyan)}.checkout{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:20px}input,textarea,select{width:100%;padding:13px;border-radius:8px;border:1px solid var(--line);background:#0b1322;color:white}textarea{grid-column:1/-1;min-height:90px}.checkout button{grid-column:1/-1;padding:14px;background:var(--blue);color:white;border:0;border-radius:8px;font-weight:bold}
+footer{margin-top:55px;padding:30px;text-align:center;background:#0d1524;border-top:1px solid var(--line);color:var(--muted)}footer .brand{justify-content:center}
+@keyframes rise{from{opacity:0;transform:translateY(14px)}to{opacity:1;transform:translateY(0)}}@media(max-width:1050px){.layout{grid-template-columns:240px 1fr}.shortcats{grid-template-columns:repeat(4,1fr)}.benefits{grid-template-columns:repeat(2,1fr)}.hero-art{opacity:.55;right:0}}@media(max-width:720px){.topbar{grid-template-columns:1fr auto;gap:12px}.brand{font-size:24px}.search{grid-column:1/-1;grid-row:2}.head-actions{gap:12px;font-size:12px}.navrow nav{gap:16px;overflow:auto}.layout{display:block}.sidebar{display:none}.hero{min-height:300px;padding:28px}.hero-art{right:-10%;opacity:.25;width:65%}.shortcats{grid-template-columns:repeat(3,1fr)}.benefits{grid-template-columns:repeat(2,1fr)}.products{grid-template-columns:repeat(2,minmax(0,1fr))}.checkout{grid-template-columns:1fr}}@media(prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important;scroll-behavior:auto!important}}
+</style>
 </head>
 <body>
-
 <header>
-  <div class="nav">
-    <a class="logo" href="#">VOLTRIX</a>
-    <nav>
-      <a href="#home">Home</a>
-      <a href="#categories">Categories</a>
-      <a href="#products">Products</a>
-      <a href="#cart">Cart (<span id="cartCount">0</span>)</a>
-      <a href="#contact">Contact</a>
-    </nav>
-  </div>
+ <div class="topbar">
+  <a class="brand" href="#"><span class="brand-mark">ϟ</span><span>VOLTRIX<small class="tagline">ELECTRONICS • INNOVATION • MORE</small></span></a>
+  <div class="search"><input id="searchInput" type="search" placeholder="Search for products..." oninput="renderProducts()"></div>
+  <div class="head-actions"><a href="#contact">◉ Support</a><a href="#cart">🛒 <span id="cartCount">0</span> Cart</a></div>
+ </div>
+ <div class="navrow"><nav><a class="allcats" href="#categories">☰ &nbsp; All Categories</a><a href="#home">⌂ &nbsp; Home</a><a href="#products">🔥 &nbsp; Best Sellers</a><a href="#products">★ &nbsp; New Arrivals</a><a href="#products">◆ &nbsp; Products</a><a href="#contact">☎ &nbsp; Contact</a></nav></div>
 </header>
-
-<section class="hero" id="home">
-  <h1>Power Your World With <span>VOLTRIX</span></h1>
-  <p>Discover electronics, accessories, chargers, cables and components. Quality products, great prices and easy online shopping.</p>
-  <button onclick="document.getElementById('products').scrollIntoView({behavior:'smooth'})">Shop Now</button>
-</section>
-
-<section class="section" id="categories">
-  <div class="section-head"><h2>Shop by Category</h2></div>
-  <div class="categories">
-    <div class="category" data-category="Arduino & Development Boards" onclick="filterCategory('Arduino & Development Boards')"><div class="emoji">🧠</div>Arduino &amp; Development Boards</div>
-    <div class="category" data-category="Sensors" onclick="filterCategory('Sensors')"><div class="emoji">📡</div>Sensors</div>
-    <div class="category" data-category="Power Supply" onclick="filterCategory('Power Supply')"><div class="emoji">⚡</div>Power Supply</div>
-    <div class="category" data-category="Batteries & Chargers" onclick="filterCategory('Batteries & Chargers')"><div class="emoji">🔋</div>Batteries &amp; Chargers</div>
-    <div class="category" data-category="LED / LED Strip / IR / Fuses" onclick="filterCategory('LED / LED Strip / IR / Fuses')"><div class="emoji">💡</div>LED / LED Strip / IR / Fuses</div>
-    <div class="category" data-category="Tools" onclick="filterCategory('Tools')"><div class="emoji">🔧</div>Tools</div>
-    <div class="category" data-category="Breadboards, Wires & Cables" onclick="filterCategory('Breadboards, Wires & Cables')"><div class="emoji">🧵</div>Breadboards, Wires &amp; Cables</div>
-    <div class="category" data-category="Connectors & Cable Accessories" onclick="filterCategory('Connectors & Cable Accessories')"><div class="emoji">🔗</div>Connectors &amp; Cable Accessories</div>
-    <div class="category" data-category="Wireless / RF / Bluetooth" onclick="filterCategory('Wireless / RF / Bluetooth')"><div class="emoji">📶</div>Wireless / RF / Bluetooth</div>
-    <div class="category" data-category="Audio & Amplifier Modules" onclick="filterCategory('Audio & Amplifier Modules')"><div class="emoji">🔊</div>Audio &amp; Amplifier Modules</div>
-    <div class="category" data-category="Relays & Control Modules" onclick="filterCategory('Relays & Control Modules')"><div class="emoji">🔄</div>Relays &amp; Control Modules</div>
-    <div class="category" data-category="ICs & Electronic Components" onclick="filterCategory('ICs & Electronic Components')"><div class="emoji">🧩</div>ICs &amp; Electronic Components</div>
-    <div class="category" data-category="Mechanical / Hardware" onclick="filterCategory('Mechanical / Hardware')"><div class="emoji">🛠️</div>Mechanical / Hardware</div>
-    <div class="category" data-category="Storage & Accessories" onclick="filterCategory('Storage & Accessories')"><div class="emoji">📦</div>Storage &amp; Accessories</div>
-    <div class="category" data-category="Soldering / Flux / Cleaning" onclick="filterCategory('Soldering / Flux / Cleaning')"><div class="emoji">🧪</div>Soldering / Flux / Cleaning</div>
-    <div class="category" data-category="Wholesale" onclick="filterCategory('Wholesale')"><div class="emoji">🏷️</div>Wholesale (الجملة)</div>
-    <div class="category" data-category="3D Printing" onclick="filterCategory('3D Printing')"><div class="emoji">🖨️</div>3D Printing</div>
-  </div>
-</section>
-
-<section class="section" id="products">
-  <div class="section-head">
-    <h2 id="productHeading">Our Products</h2>
-    <div style="display:flex;gap:10px;flex-wrap:wrap">
-      <button class="btn" id="showAllProducts" style="display:none;margin-top:0;background:#30445e" onclick="showAllProducts()">Show All</button>
-      <button class="btn" onclick="loadProducts()" style="margin-top:0">Refresh</button>
-    </div>
-  </div>
-  <div class="products" id="productList">
-    <div class="empty">Loading products...</div>
-  </div>
-</section>
-
-<section class="section" id="cart">
-  <div class="section-head"><h2>Your Shopping Cart</h2></div>
-  <div class="cart-box">
-    <div id="cartItems" class="muted">Your cart is empty.</div>
-    <div class="total">Total: <span id="cartTotal">0</span> EGP</div>
-    <div class="checkout">
-      <input id="customerName" placeholder="Your full name">
-      <input id="customerPhone" placeholder="Phone number">
-      <input id="customerAddress" placeholder="Delivery address">
-      <select id="paymentMethod">
-        <option value="cod">Cash on Delivery</option>
-        <option value="online">Online Payment (coming soon)</option>
-      </select>
-      <textarea id="customerNotes" placeholder="Order notes (optional)"></textarea>
-      <button onclick="checkout()">Place Order</button>
-    </div>
-    <p class="muted" style="margin-top:12px;font-size:12px">Online payment is not activated yet. Orders are currently a storefront demo.</p>
-  </div>
-</section>
-
-<section class="section" id="contact">
-  <h2>Contact VOLTRIX</h2>
-  <p class="muted" style="margin-top:12px">Have a question? Contact us for product information and support.</p>
-</section>
-
-<footer>
-  <div class="logo">VOLTRIX</div>
-  <p style="margin-top:12px">Powering Your Everyday Technology.</p>
-  <p style="margin-top:8px">© 2026 VOLTRIX. All rights reserved.</p>
-</footer>
-
+<div class="layout" id="home">
+ <aside class="sidebar">
+  <div class="sidecats"><div class="side-title">▦ &nbsp; Shop by Categories</div><div id="sideCategories"></div></div>
+  <div class="promo"><h3>3D Printing</h3><p>Turn your ideas into reality.</p><a href="#products" onclick="filterCategory('3D Printing')">Explore Products →</a></div>
+ </aside>
+ <main>
+  <section class="hero">
+   <div class="hero-copy"><div class="hero-kicker">BUILD • CREATE • INNOVATE</div><h1>VOL<span>TRIX</span></h1><h2 style="font-size:24px;margin-bottom:10px">Your One-Stop Electronics Shop</h2><p>Components, development boards, tools and accessories for your next great project.</p><button class="primary" onclick="document.getElementById('products').scrollIntoView({behavior:'smooth'})">Shop Now →</button></div>
+   <div class="hero-art"><div class="chip-art">⌘</div></div>
+  </section>
+  <div class="benefits"><div class="benefit"><i>ϟ</i><div><b>Fast Delivery</b><small>Across Egypt</small></div></div><div class="benefit"><i>✓</i><div><b>Secure Shopping</b><small>Simple checkout</small></div></div><div class="benefit"><i>◉</i><div><b>Helpful Support</b><small>Here when you need us</small></div></div><div class="benefit"><i>↻</i><div><b>Easy Shopping</b><small>Browse with ease</small></div></div></div>
+  <div class="shortcats" id="shortCategories"></div>
+  <section id="products"><div class="section-head"><h2 id="productHeading">★ Featured Products</h2><button onclick="showAllProducts()">View All Products →</button></div><div class="products" id="productList"><div class="empty">Loading products...</div></div></section>
+ </main>
+</div>
+<section class="cart-section" id="cart"><div class="section-head"><h2>Your Shopping Cart</h2></div><div class="cart-box"><div id="cartItems" class="muted">Your cart is empty.</div><div class="total">Total: <span id="cartTotal">0</span> EGP</div><div class="checkout"><input id="customerName" placeholder="Your full name"><input id="customerPhone" placeholder="Phone number"><input id="customerAddress" placeholder="Delivery address"><select id="paymentMethod"><option value="cod">Cash on Delivery</option><option value="online">Online Payment (coming soon)</option></select><textarea id="customerNotes" placeholder="Order notes (optional)"></textarea><button onclick="checkout()">Place Order</button></div><p class="muted" style="margin-top:12px;font-size:12px">Online payment is not activated yet. Orders are currently a storefront demo.</p></div></section>
+<section class="cart-section" id="contact"><h2>Contact VOLTRIX</h2><p class="muted" style="margin-top:10px">Questions about a product? We're here to help.</p></section>
+<footer><div class="brand"><span class="brand-mark">ϟ</span>VOLTRIX</div><p style="margin-top:10px">Powering Your Everyday Technology · © 2026 VOLTRIX</p></footer>
 <script>
-const SUPABASE_URL = "https://zqzramrhfphvifmayycu.supabase.co";
-const SUPABASE_KEY = "sb_publishable_nw8wlcJkd8DHZ2DEmurqZw_y7EpvpVO";
-
-let products = [];
-let cart = [];
-let currentCategory = null;
-
+const SUPABASE_URL="https://zqzramrhfphvifmayycu.supabase.co";
+const SUPABASE_KEY="sb_publishable_nw8wlcJkd8DHZ2DEmurqZw_y7EpvpVO";
+const categories=[
+ ["Arduino & Development Boards","🧠"],["Sensors","📡"],["Power Supply","⚡"],["Batteries & Chargers","🔋"],["LED / LED Strip / IR / Fuses","💡"],["Tools","🔧"],["Breadboards, Wires & Cables","🧵"],["Connectors & Cable Accessories","🔗"],["Wireless / RF / Bluetooth","📶"],["Audio & Amplifier Modules","🔊"],["Relays & Control Modules","🔄"],["ICs & Electronic Components","🧩"],["3D Printing","🖨️"],["Mechanical / Hardware","🛠️"],["Storage & Accessories","📦"],["Soldering / Flux / Cleaning","🧪"],["Wholesale","🏷️"]
+];
+let products=[],cart=[],currentCategory=null;
+const escapeHTML=v=>String(v??"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
+function buildCategories(){
+ document.getElementById("sideCategories").innerHTML=categories.map(([name,emoji])=>'<button class="catlink" data-category="'+escapeHTML(name)+'" onclick="filterCategory('+JSON.stringify(name)+')"><span class="caticon">'+emoji+'</span>'+escapeHTML(name)+' <span style="margin-left:auto">›</span></button>').join("");
+ document.getElementById("shortCategories").innerHTML=categories.slice(0,7).map(([name,emoji])=>'<div class="shortcut" onclick="filterCategory('+JSON.stringify(name)+')"><span class="emoji">'+emoji+'</span><span>'+escapeHTML(name)+'</span></div>').join("");
+}
 async function loadProducts(){
-  const list = document.getElementById("productList");
-  list.innerHTML = '<div class="empty">Loading products...</div>';
-
-  try{
-    const response = await fetch(
-      `${SUPABASE_URL}/rest/v1/products?select=*&active=eq.true&order=created_at.desc`,
-      {headers:{
-        apikey:SUPABASE_KEY,
-        Authorization:`Bearer ${SUPABASE_KEY}`
-      }}
-    );
-
-    if(!response.ok) throw new Error(await response.text());
-    products = await response.json();
-    renderProducts();
-  }catch(error){
-    const detail = error && error.message ? error.message : String(error);
-    list.innerHTML = '<div class="empty">Could not load products.<br><small style="display:block;margin-top:10px;direction:ltr;overflow-wrap:anywhere;color:#ff9aa8">'+escapeHTML(detail)+'</small></div>';
-    console.error("VOLTRIX products request failed:",error);
-  }
+ const list=document.getElementById("productList");list.innerHTML='<div class="empty">Loading products...</div>';
+ try{
+  const response=await fetch(SUPABASE_URL+'/rest/v1/products?select=*&active=eq.true&order=created_at.desc',{headers:{apikey:SUPABASE_KEY,Authorization:'Bearer '+SUPABASE_KEY}});
+  if(!response.ok)throw new Error(await response.text());
+  products=await response.json();renderProducts();
+ }catch(error){const detail=error?.message||String(error);list.innerHTML='<div class="empty">Could not load products.<br><small style="display:block;margin-top:10px;direction:ltr;color:#ff9aa8">'+escapeHTML(detail)+'</small></div>';console.error(error);}
 }
-
-function watchStorefrontAnimations(){
-  if(window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
-  const observer=new IntersectionObserver(entries=>entries.forEach(entry=>{
-    if(entry.isIntersecting){entry.target.classList.add("is-visible");observer.unobserve(entry.target);}
-  }),{threshold:.12});
-  document.querySelectorAll(".section.reveal-on-scroll").forEach(el=>observer.observe(el));
+function productEmoji(category){
+ const found=categories.find(c=>c[0]===category);return found?found[1]:"🔌";
 }
-
-document.querySelectorAll(".section").forEach(el=>el.classList.add("reveal-on-scroll"));
-watchStorefrontAnimations();
-
 function renderProducts(){
-  const list = document.getElementById("productList");
-  const shown = currentCategory
-    ? products.filter(p=>p.category===currentCategory)
-    : products;
-
-  if(!shown.length){
-    list.innerHTML = '<div class="empty">No products available in this category yet.</div>';
-    return;
-  }
-
-  list.innerHTML = shown.map((p,index)=>`
-    <article class="product" style="animation-delay:${Math.min(index*65,390)}ms">
-      ${p.image_url ? `<img src="${escapeHTML(p.image_url)}" alt="${escapeHTML(p.name)}" onerror="this.style.display='none'">` : `<div style="height:180px;display:grid;place-items:center;font-size:45px">📦</div>`}
-      <div class="product-info">
-        <h3>${escapeHTML(p.name)}</h3>
-        <p>${escapeHTML(p.description||"")}</p>
-        <div class="price">${Number(p.price).toLocaleString()} EGP</div>
-        <button onclick="addToCart('${String(p.id).replace(/'/g,"")}')">Add to Cart</button>
-      </div>
-    </article>
-  `).join("");
+ const list=document.getElementById("productList"),term=(document.getElementById("searchInput")?.value||"").trim().toLowerCase();
+ const shown=products.filter(p=>(!currentCategory||p.category===currentCategory)&&(!term||[p.name,p.description,p.category].join(" ").toLowerCase().includes(term)));
+ document.getElementById("productHeading").textContent=currentCategory|| (term?"Search Results":"★ Featured Products");
+ if(!shown.length){list.innerHTML='<div class="empty">No products found. Try another category or search term.</div>';return;}
+ list.innerHTML=shown.map((p,i)=>'<article class="product" style="animation-delay:'+Math.min(i*45,350)+'ms"><div class="product-media">'+(p.image_url?'<img src="'+escapeHTML(p.image_url)+'" alt="'+escapeHTML(p.name)+'" onerror="this.parentElement.innerHTML=\'<div class=art-placeholder><span>🔌</span></div>\'">':'<div class="art-placeholder"><span>'+productEmoji(p.category)+'</span></div>')+'</div><div class="product-info"><h3>'+escapeHTML(p.name)+'</h3><p>'+escapeHTML(p.description||p.category||"Electronic component")+'</p><div class="price">'+Number(p.price||0).toLocaleString()+' EGP</div><span class="stock">● Stock status: Contact us</span><button onclick="addToCart('+JSON.stringify(String(p.id))+')">🛒 Add to Cart</button></div></article>').join("");
 }
-
-function escapeHTML(value){
-  return String(value??"").replace(/[&<>"']/g,c=>({
-    "&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"
-  }[c]));
-}
-
-function filterCategory(category){
-  currentCategory = category;
-  document.getElementById("productHeading").textContent = category;
-  document.getElementById("showAllProducts").style.display = "inline-block";
-  document.querySelectorAll(".category").forEach(card=>card.classList.toggle("active",card.dataset.category===category));
-  renderProducts();
-  document.getElementById("products").scrollIntoView({behavior:"smooth",block:"start"});
-}
-
-function showAllProducts(){
-  currentCategory = null;
-  document.getElementById("productHeading").textContent = "Our Products";
-  document.getElementById("showAllProducts").style.display = "none";
-  document.querySelectorAll(".category").forEach(card=>card.classList.remove("active"));
-  renderProducts();
-}
-
-function addToCart(id){
-  const product = products.find(p=>String(p.id)===String(id));
-  if(!product) return;
-
-  const item = cart.find(i=>String(i.id)===String(id));
-  if(item) item.quantity++;
-  else cart.push({...product,quantity:1});
-
-  renderCart();
-}
-
-function removeFromCart(id){
-  cart = cart.filter(i=>String(i.id)!==String(id));
-  renderCart();
-}
-
-function renderCart(){
-  const container = document.getElementById("cartItems");
-  const count = cart.reduce((sum,i)=>sum+i.quantity,0);
-  const total = cart.reduce((sum,i)=>sum+Number(i.price)*i.quantity,0);
-
-  document.getElementById("cartCount").textContent=count;
-  document.getElementById("cartTotal").textContent=total.toLocaleString();
-
-  if(!cart.length){
-    container.innerHTML="Your cart is empty.";
-    return;
-  }
-
-  container.innerHTML=cart.map(i=>`
-    <div class="cart-item">
-      <span>${escapeHTML(i.name)} × ${i.quantity}</span>
-      <span>${(Number(i.price)*i.quantity).toLocaleString()} EGP
-        <button onclick="removeFromCart('${String(i.id).replace(/'/g,"")}')">Remove</button>
-      </span>
-    </div>
-  `).join("");
-}
-
-function checkout(){
-  if(!cart.length){
-    alert("Your cart is empty.");
-    return;
-  }
-
-  const name=document.getElementById("customerName").value.trim();
-  const phone=document.getElementById("customerPhone").value.trim();
-  const address=document.getElementById("customerAddress").value.trim();
-
-  if(!name||!phone||!address){
-    alert("Please enter your name, phone number and address.");
-    return;
-  }
-
-  if(document.getElementById("paymentMethod").value==="online"){
-    alert("Online payment is not activated yet. Please choose Cash on Delivery.");
-    return;
-  }
-
-  alert("This checkout is a demo and does not save orders yet. Order submission needs to be connected to the database.");
-}
-
-loadProducts();
-renderCart();
+function filterCategory(name){currentCategory=name;renderProducts();document.getElementById("products").scrollIntoView({behavior:"smooth"});document.querySelectorAll(".catlink").forEach(b=>b.classList.toggle("active",b.dataset.category===name));}
+function showAllProducts(){currentCategory=null;document.getElementById("searchInput").value="";document.querySelectorAll(".catlink").forEach(b=>b.classList.remove("active"));renderProducts();}
+function addToCart(id){const p=products.find(x=>String(x.id)===String(id));if(!p)return;const item=cart.find(x=>String(x.id)===String(id));if(item)item.quantity++;else cart.push({...p,quantity:1});renderCart();}
+function removeFromCart(id){cart=cart.filter(x=>String(x.id)!==String(id));renderCart();}
+function renderCart(){const count=cart.reduce((s,x)=>s+x.quantity,0),total=cart.reduce((s,x)=>s+Number(x.price)*x.quantity,0);document.getElementById("cartCount").textContent=count;document.getElementById("cartTotal").textContent=total.toLocaleString();document.getElementById("cartItems").innerHTML=cart.length?cart.map(x=>'<div class="cart-item"><span>'+escapeHTML(x.name)+' × '+x.quantity+'</span><span>'+Number(x.price*x.quantity).toLocaleString()+' EGP <button onclick="removeFromCart('+JSON.stringify(String(x.id))+')">Remove</button></span></div>').join(""):"Your cart is empty.";}
+function checkout(){if(!cart.length)return alert("Your cart is empty.");const name=document.getElementById("customerName").value.trim(),phone=document.getElementById("customerPhone").value.trim(),address=document.getElementById("customerAddress").value.trim();if(!name||!phone||!address)return alert("Please enter your name, phone number and address.");if(document.getElementById("paymentMethod").value==="online")return alert("Online payment is not activated yet. Please choose Cash on Delivery.");alert("This checkout is a demo and does not save orders yet.");}
+buildCategories();loadProducts();renderCart();
 </script>
-</body>
-</html>
-
+</body></html>
