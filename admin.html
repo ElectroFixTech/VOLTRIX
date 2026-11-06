@@ -213,7 +213,7 @@ b.classList.add("active");
 if(b.dataset.tab==="products")loadProducts();
 if(b.dataset.tab==="orders")loadOrders();
 if(b.dataset.tab==="customers")loadCustomers();
-if(b.dataset.tab==="support")loadSupport();
+if(b.dataset.tab==="support")loadSupport();\nif(b.dataset.tab==="settings")loadInstaPaySettings();
 if(b.dataset.tab==="dashboard")dashboard();
 };
 });
@@ -312,7 +312,7 @@ $("orderList").innerHTML=orders.map(o=>{
 <strong>${safe(o.order_number||o.id)}</strong>
 <p>${safe(o.customer_name)} | ${safe(o.phone)}</p>
 <p>${safe(o.governorate)} | ${safe(o.address)}</p>
-<p>Payment: ${safe(o.payment_method)} | Total: EGP ${money(o.total)}</p>
+<p>Payment: ${safe(o.payment_method)} | Payment status: <strong>${safe(o.payment_status||"unpaid")}</strong> | Total: EGP ${money(o.total)}</p><p>InstaPay reference: ${safe(o.payment_reference||"—")}</p><label>Payment verification</label><select data-payment-status="${safe(o.id)}">${["pending","paid","rejected","unpaid"].map(s=>`<option ${o.payment_status===s?"selected":""}>${s}</option>`).join("")}</select><button data-payment-update="${safe(o.id)}">Save Payment Status</button>
 <p>Placed: ${o.created_at?new Date(o.created_at).toLocaleString():"—"}</p>
 <strong>Products ordered:</strong>
 ${lines.map(x=>`<p>• ${safe(x.product_name)} × ${money(x.quantity)} — EGP ${money(Number(x.unit_price)*Number(x.quantity))}</p>`).join("")||"<p>Order items unavailable.</p>"}
@@ -325,6 +325,14 @@ ${["new","pending","confirmed","processing","shipped","delivered","cancelled"].m
 }).join("")||"No saved orders yet.";
 }
 $("refreshOrders").onclick=loadOrders;
+$("orderList").addEventListener("click",async e=>{
+ const b=e.target.closest("[data-payment-update]");if(!b)return;
+ const id=b.dataset.paymentUpdate;
+ const s=$("orderList").querySelector('[data-payment-status="'+CSS.escape(id)+'"]');
+ const {error}=await db.from("orders").update({payment_status:s.value}).eq("id",id);
+ if(error)msg("orderMsg","Could not update payment status: "+error.message,true);
+ else{msg("orderMsg","Payment status updated.");loadOrders();}
+});
 $("orderList").onclick=async e=>{
 const b=e.target.closest("[data-update]");if(!b)return;
 const id=b.dataset.update;
@@ -365,6 +373,21 @@ $("customerList").innerHTML=customers.map(c=>`
 }
 $("refreshCustomers").onclick=loadCustomers;
 
+
+async function loadInstaPaySettings(){
+ msg("settingsMsg","Loading...");
+ const {data,error}=await db.from("store_settings").select("instapay_ipa").eq("id",1).maybeSingle();
+ if(error){msg("settingsMsg","Could not load settings: "+error.message,true);return}
+ $("instapayIpa").value=data?.instapay_ipa||"";
+ msg("settingsMsg","Set the IPA customers should use for transfers.");
+}
+$("saveInstaPay").onclick=async()=>{
+ const ipa=$("instapayIpa").value.trim();
+ if(!ipa){msg("settingsMsg","Enter the InstaPay IPA first.",true);return}
+ const {error}=await db.from("store_settings").upsert({id:1,instapay_ipa:ipa});
+ if(error)msg("settingsMsg","Could not save IPA: "+error.message,true);
+ else msg("settingsMsg","InstaPay address saved.");
+};
 
 async function loadSupport(){
  msg("supportMsg","Loading support messages...");
