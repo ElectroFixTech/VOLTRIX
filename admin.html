@@ -76,6 +76,7 @@ input:focus,select:focus,textarea:focus{outline:none;border-color:#20d9ff;box-sh
 <button data-tab="products">Products</button>
 <button data-tab="orders">Orders</button>
 <button data-tab="customers">Customers</button>
+<button data-tab="support">Support</button>
 <button data-tab="settings">Settings</button>
 <button id="logout" class="danger">Logout</button>
 </div>
@@ -146,6 +147,13 @@ input:focus,select:focus,textarea:focus{outline:none;border-color:#20d9ff;box-sh
 <p id="customerMsg" class="msg"></p><button id="refreshCustomers" type="button">Refresh</button><div id="customerList"></div>
 </section>
 
+<section id="support" class="tab hidden">
+<h2>Support Messages</h2><br>
+<button id="refreshSupport" type="button">Refresh</button>
+<p id="supportMsg" class="msg"></p>
+<div id="supportList"></div>
+</section>
+
 <section id="settings" class="tab hidden">
 <h2>Store Settings</h2>
 <div class="box">
@@ -205,6 +213,7 @@ b.classList.add("active");
 if(b.dataset.tab==="products")loadProducts();
 if(b.dataset.tab==="orders")loadOrders();
 if(b.dataset.tab==="customers")loadCustomers();
+if(b.dataset.tab==="support")loadSupport();
 if(b.dataset.tab==="dashboard")dashboard();
 };
 });
@@ -355,6 +364,36 @@ $("customerList").innerHTML=customers.map(c=>`
 </div>`).join("")||"No registered accounts yet.";
 }
 $("refreshCustomers").onclick=loadCustomers;
+
+
+async function loadSupport(){
+ msg("supportMsg","Loading support messages...");
+ $("supportList").textContent="";
+ const {data,error}=await db.from("support_messages").select("*").order("created_at",{ascending:false});
+ if(error){msg("supportMsg","Could not load support messages: "+error.message,true);return}
+ const messages=data||[];
+ msg("supportMsg",messages.length+" messages found.");
+ $("supportList").innerHTML=messages.map(m=>
+  '<div class="item"><strong>'+safe(m.category)+' · '+safe(m.name)+'</strong>'+
+  '<p>Email: <a href="mailto:'+safe(m.email)+'">'+safe(m.email)+'</a>'+(m.phone?' | Phone: '+safe(m.phone):'')+'</p>'+
+  '<p>Received: '+(m.created_at?new Date(m.created_at).toLocaleString():"—")+'</p>'+
+  '<p style="white-space:pre-wrap;overflow-wrap:anywhere;margin:12px 0">'+safe(m.message)+'</p>'+
+  '<label>Status</label><select data-support-status="'+safe(m.id)+'">'+
+  ["new","in_progress","resolved"].map(v=>'<option value="'+v+'" '+(m.status===v?'selected':'')+'>'+v.replace("_"," ")+'</option>').join("")+
+  '</select><button data-support-update="'+safe(m.id)+'">Save Status</button></div>'
+ ).join("")||"No support messages yet.";
+}
+$("refreshSupport").onclick=loadSupport;
+$("supportList").onclick=async e=>{
+ const button=e.target.closest("[data-support-update]");
+ if(!button)return;
+ const id=button.dataset.supportUpdate;
+ const select=$("supportList").querySelector('[data-support-status="'+CSS.escape(id)+'"]');
+ const {error}=await db.from("support_messages").update({status:select.value}).eq("id",id);
+ if(error)msg("supportMsg","Could not update status: "+error.message,true);
+ else loadSupport();
+};
+
 
 db.auth.onAuthStateChange((event,session)=>{
 if(event==="SIGNED_OUT"){
