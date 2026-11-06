@@ -22,7 +22,7 @@ Deno.serve(async (req) => {
     const token = authorization.replace(/^Bearer\s+/i, "");
     if (!token) return reply({ error: "Please sign in before placing an order." }, 401);
 
-    const { name, phone, governorate, address, notes, payment_method, items } = await req.json();
+    const { name, phone, governorate, address, notes, payment_method, payment_reference, items } = await req.json();
 
     if (typeof name !== "string" || name.trim().length < 2 ||
         typeof phone !== "string" || phone.trim().length < 7 ||
