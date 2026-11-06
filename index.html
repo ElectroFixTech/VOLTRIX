@@ -70,6 +70,20 @@ async function loadProducts(){
   products=await response.json();renderProducts();
  }catch(error){const detail=error?.message||String(error);list.innerHTML='<div class="empty">Could not load products.<br><small style="display:block;margin-top:10px;direction:ltr;color:#ff9aa8">'+escapeHTML(detail)+'</small></div>';console.error(error);}
 }
+function productPhoto(p){
+ const n=String(p.name||"").toLowerCase();
+ const photos=[
+  [/arduino uno r3 without cable/, "https://store.arduino.cc/cdn/shop/files/A000073_00.front_934x700.jpg?v=1727098256"],
+  [/arduino nano v3.0/, "https://store.arduino.cc/cdn/shop/files/A000005_03.front_934x700.jpg?v=1777476619"],
+  [/stm32f103c8t6 blue pill/, "https://shillehtek.com/cdn/shop/files/3_4889ab33-55f1-4b1d-ad8f-53e91ae9dc4c.png?v=1768710726&width=1445"],
+  [/water flow sensor yf-s201/, "https://protronix-eg.com/wp-content/uploads/2026/01/Y201-150x150.webp"],
+  [/usb-c 18650 charging module/, "https://laz-img-sg.alicdn.com/p/8923cbcb6297ae76e64e54d02bdbb07f.jpg"],
+  [/terminal block 3-pin/, "https://m.media-amazon.com/images/I/71JtyiePxCL.jpg"],
+  [/8-channel 5v serial control relay/, "https://cdn.shopify.com/s/files/1/0122/7558/0986/products/5_6e44f303-1cec-4c2b-b235-f48d0f2a114b_1024x1024.jpg?v=1604310110"]
+ ];
+ const match=photos.find(([pattern])=>pattern.test(n));
+ return match?match[1]:(p.image_url||"");
+}
 function productEmoji(category){
  const found=categories.find(c=>c[0]===category);return found?found[1]:"🔌";
 }
@@ -95,7 +109,7 @@ function renderProducts(){
  const shown=products.filter(p=>(!currentCategory||p.category===currentCategory)&&(!term||[p.name,p.description,p.category].join(" ").toLowerCase().includes(term)));
  document.getElementById("productHeading").textContent=currentCategory|| (term?"Search Results":"★ Featured Products");
  if(!shown.length){list.innerHTML='<div class="empty">No products found. Try another category or search term.</div>';return;}
- list.innerHTML=shown.map((p,i)=>'<article class="product" style="animation-delay:'+Math.min(i*45,350)+'ms"><div class="product-media">'+(p.image_url?'<img src="'+escapeHTML(p.image_url)+'" alt="'+escapeHTML(p.name)+'" onerror="this.replaceWith(Object.assign(document.createElement(\'div\'),{outerHTML:productIllustration('+JSON.stringify(String("x"))+')}))">':productIllustration(p))+'</div><div class="product-info"><h3>'+escapeHTML(p.name)+'</h3><p>'+escapeHTML(p.description||p.category||"Electronic component")+'</p><div class="price">'+Number(p.price||0).toLocaleString()+' EGP</div><span class="stock">● Stock status: Contact us</span><button onclick="addToCart('+JSON.stringify(String(p.id))+')">🛒 Add to Cart</button></div></article>').join("");
+ list.innerHTML=shown.map((p,i)=>{const photo=productPhoto(p);return '<article class="product" style="animation-delay:'+Math.min(i*45,350)+'ms"><div class="product-media">'+(photo?'<img loading="lazy" src="'+escapeHTML(photo)+'" alt="'+escapeHTML(p.name)+'" onerror="this.outerHTML=productIllustration('+JSON.stringify(p).replace(/</g,"\\u003c")+')">':productIllustration(p))+'</div><div class="product-info"><h3>'+escapeHTML(p.name)+'</h3><p>'+escapeHTML(p.description||p.category||"Electronic component")+'</p><div class="price">'+Number(p.price||0).toLocaleString()+' EGP</div><span class="stock">● Stock status: Contact us</span><button onclick="addToCart('+JSON.stringify(String(p.id))+')">🛒 Add to Cart</button></div></article>';}).join("");
 }
 function filterCategory(name){currentCategory=name;renderProducts();document.getElementById("products").scrollIntoView({behavior:"smooth"});document.querySelectorAll(".catlink").forEach(b=>b.classList.toggle("active",b.dataset.category===name));}
 function showAllProducts(){currentCategory=null;document.getElementById("searchInput").value="";document.querySelectorAll(".catlink").forEach(b=>b.classList.remove("active"));renderProducts();}
