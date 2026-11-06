@@ -445,7 +445,7 @@ $("login").classList.remove("hidden");
 
 async function start(){
 const {data}=await db.auth.getSession();
-await verify(data.session?.user||null);
+if(data.session?.user) await verify(data.session.user);
 }
 start();
 </script>
