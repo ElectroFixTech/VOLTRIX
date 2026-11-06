@@ -60,7 +60,7 @@ footer{margin-top:55px;padding:30px;text-align:center;background:#0d1524;border-
   <section id="products"><div class="section-head"><h2 id="productHeading">★ Featured Products</h2><button onclick="showAllProducts()">View All Products →</button></div><div class="products" id="productList"><div class="empty">Loading products...</div></div></section>
  </main>
 </div>
-<section class="cart-section" id="cart"><div class="section-head"><h2>Your Shopping Cart</h2></div><div class="cart-box"><div id="cartItems" class="muted">Your cart is empty.</div><div class="total">Total: <span id="cartTotal">0</span> EGP</div><div class="checkout"><div id="checkoutMessage" class="form-message" role="alert" aria-live="polite"></div><input id="customerName" placeholder="Your full name"><input id="customerPhone" type="tel" inputmode="numeric" maxlength="11" placeholder="Egyptian mobile number (11 digits)" autocomplete="tel" required><input id="customerGovernorate" placeholder="Governorate (e.g. Cairo)" required><input id="customerAddress" placeholder="Delivery address" required><select id="paymentMethod"><option value="cod">Cash on Delivery</option><option value="online">Online Payment (coming soon)</option></select><textarea id="customerNotes" placeholder="Order notes (optional)"></textarea><button onclick="checkout()">Place Order</button></div><p class="muted" style="margin-top:12px;font-size:12px">Online payment is not activated yet. Orders are currently a storefront demo.</p></div></section>
+<section class="cart-section" id="cart"><div class="section-head"><h2>Your Shopping Cart</h2></div><div class="cart-box"><div id="cartItems" class="muted">Your cart is empty.</div><div class="total">Total: <span id="cartTotal">0</span> EGP</div><div class="checkout"><div id="checkoutMessage" class="form-message" role="alert" aria-live="polite"></div><input id="customerName" placeholder="Your full name"><input id="customerPhone" type="tel" inputmode="numeric" maxlength="11" placeholder="Egyptian mobile number (11 digits)" autocomplete="tel" required><input id="customerGovernorate" placeholder="Governorate (e.g. Cairo)" required><input id="customerAddress" placeholder="Delivery address" required><input type="hidden" id="paymentMethod" value="instapay"><div id="instapayPanel" style="background:#102238;border:1px solid #20d9ff;border-radius:8px;padding:14px;margin:12px 0"><strong>Pay with InstaPay</strong><p id="instapayAddress" style="margin:10px 0;overflow-wrap:anywhere">Loading store payment address...</p><p style="font-size:12px;color:#bdcce0">Transfer the exact order total, then enter your InstaPay transaction reference below. Your order stays pending until the admin verifies the transfer.</p><input id="paymentReference" maxlength="100" placeholder="InstaPay transaction reference (required)"></div><textarea id="customerNotes" placeholder="Order notes (optional)"></textarea><button onclick="checkout()">Place Order</button></div><p class="muted" style="margin-top:12px;font-size:12px">Online payment is not activated yet. Orders are currently a storefront demo.</p></div></section>
 <section class="cart-section" id="contact">
  <h2>Contact Support</h2>
  <p class="muted" style="margin-top:10px">Need help with an order, product, or your account? Send our support team a message.</p>
@@ -195,20 +195,20 @@ async function checkout(){
  if(!/^(010|011|012|015)\d{8}$/.test(phone))return showCheckoutMessage("Invalid Egyptian mobile number. Enter 11 digits starting with 010, 011, 012 or 015.","error","customerPhone");
  if(!governorate)return showCheckoutMessage("Please enter your governorate.","error","customerGovernorate");
  if(!address)return showCheckoutMessage("Please enter your delivery address.","error","customerAddress");
- if(document.getElementById("paymentMethod").value!=="cod")return showCheckoutMessage("Online payment is not active yet. Please choose Cash on Delivery.");
+ const paymentReference=document.getElementById("paymentReference").value.trim();\n if(!paymentReference)return showCheckoutMessage("Please enter your InstaPay transaction reference.","error","paymentReference");
  const button=document.querySelector(".checkout button");
  button.disabled=true;button.textContent="Sending order...";
  try{
   const response=await fetch(SUPABASE_URL+"/functions/v1/create-order",{
    method:"POST",
    headers:{"Content-Type":"application/json","apikey":SUPABASE_KEY,"Authorization":"Bearer "+sessionData.session.access_token},
-   body:JSON.stringify({name,phone,governorate,address,payment_method:"cod",items:cart.map(x=>({id:x.id,quantity:x.quantity}))})
+   body:JSON.stringify({name,phone,governorate,address,notes:document.getElementById("customerNotes").value.trim(),payment_method:"instapay",payment_reference:paymentReference,items:cart.map(x=>({id:x.id,quantity:x.quantity}))})
   });
   const result=await response.json();
   if(!response.ok||!result.success){const detail=result.details?(" | Details: "+JSON.stringify(result.details)): "";throw new Error((result.error||"Order could not be saved.")+detail);}
   showCheckoutMessage("Your order was received! Order number: "+result.order_number+" | Total: "+Number(result.total).toLocaleString()+" EGP","success");
   cart=[];localStorage.removeItem("voltrix_cart");renderCart();
-  ["customerName","customerPhone","customerGovernorate","customerAddress","customerNotes"].forEach(id=>document.getElementById(id).value="");
+  ["customerName","customerPhone","customerGovernorate","customerAddress","customerNotes","paymentReference"].forEach(id=>document.getElementById(id).value="");
  }catch(error){showCheckoutMessage(error.message||"Could not submit your order. Please try again.");}
  finally{button.disabled=false;button.textContent="Place Order";}
 }
@@ -268,6 +268,12 @@ document.getElementById("supportForm").addEventListener("submit",async e=>{
 prepareSupportForm();
 authClient.auth.onAuthStateChange(()=>prepareSupportForm());
 
+async function loadInstaPayAddress(){
+ const target=document.getElementById("instapayAddress");
+ const {data,error}=await authClient.from("store_settings").select("instapay_ipa").eq("id",1).maybeSingle();
+ target.textContent=error?"Payment address is temporarily unavailable.":(data?.instapay_ipa||"Store payment address is not configured yet. Please contact support.");
+}
+loadInstaPayAddress();
 buildCategories();loadProducts();renderCart();
 </script>
 </body></html>
