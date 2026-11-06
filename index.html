@@ -54,6 +54,7 @@
     .category{background:var(--panel);border:1px solid var(--line);padding:23px 12px;border-radius:13px;text-align:center;cursor:pointer}
     .category:hover{border-color:var(--cyan);transform:translateY(-3px)}
     .category.active{border-color:var(--cyan);background:linear-gradient(145deg,#15334a,#111a2b);box-shadow:0 0 0 2px #19d3e633,0 10px 25px #19d3e622}
+    .category.active{border-color:var(--cyan);background:linear-gradient(145deg,#15334a,#111a2b);box-shadow:0 0 0 2px #19d3e633,0 10px 25px #19d3e622}
     .category .emoji{font-size:30px;margin-bottom:12px}
     .products{display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:18px}
     .product{background:var(--panel);border:1px solid var(--line);border-radius:15px;overflow:hidden}
@@ -100,19 +101,21 @@
 <section class="section" id="categories">
   <div class="section-head"><h2>Categories</h2></div>
   <div class="categories">
-    <div class="category" data-category="'Cables & Connectors"><div class="emoji">🔌</div>Cables & Connectors</div>
-    <div class="category" onclick="filterCategory('Batteries & Chargers')"><div class="emoji">🔋</div>Batteries & Chargers</div>
-    <div class="category" onclick="filterCategory('Electronic Components')"><div class="emoji">💡</div>Electronic Components</div>
-    <div class="category" onclick="filterCategory('Tools & Equipment')"><div class="emoji">🛠️</div>Tools & Equipment</div>
-    <div class="category" onclick="filterCategory('3D Printing')"><div class="emoji">🖨️</div>3D Printing</div>
-    <div class="category" onclick="filterCategory('Wireless Modules')"><div class="emoji">📡</div>Wireless Modules</div>
-  </div>
-</section>
+    <div class="category" data-category="Cables &amp; Connectors" onclick="filterCategory('Cables &amp; Connectors')"><div class="emoji">🔌</div>Cables &amp; Connectors</div>
+    <div class="category" data-category="Batteries &amp; Chargers" onclick="filterCategory('Batteries &amp; Chargers')"><div class="emoji">🔋</div>Batteries &amp; Chargers</div>
+    <div class="category" data-category="Electronic Components" onclick="filterCategory('Electronic Components')"><div class="emoji">💡</div>Electronic Components</div>
+    <div class="category" data-category="Tools &amp; Equipment" onclick="filterCategory('Tools &amp; Equipment')"><div class="emoji">🛠️</div>Tools &amp; Equipment</div>
+    <div class="category" data-category="3D Printing" onclick="filterCategory('3D Printing')"><div class="emoji">🖨️</div>3D Printing</div>
+    <div class="category" data-category="Wireless Modules" onclick="filterCategory('Wireless Modules')"><div class="emoji">📡</div>Wireless Modules</div>
+  </div>/section>
 
 <section class="section" id="products">
   <div class="section-head">
-    <h2>Our Products</h2>
-    <button class="btn" onclick="loadProducts()">Refresh</button>
+    <h2 id="productHeading">Our Products</h2>
+    <div style="display:flex;gap:10px;flex-wrap:wrap">
+      <button class="btn" id="showAllProducts" style="display:none;margin-top:0;background:#30445e" onclick="showAllProducts()">Show All</button>
+      <button class="btn" onclick="loadProducts()" style="margin-top:0">Refresh</button>
+    </div>
   </div>
   <div class="products" id="productList">
     <div class="empty">Loading products...</div>
@@ -222,8 +225,19 @@ function escapeHTML(value){
 }
 
 function filterCategory(category){
-  currentCategory = currentCategory===category ? null : category;
-  document.getElementById("products").scrollIntoView({behavior:"smooth"});
+  currentCategory = category;
+  document.getElementById("productHeading").textContent = category;
+  document.getElementById("showAllProducts").style.display = "inline-block";
+  document.querySelectorAll(".category").forEach(card=>card.classList.toggle("active",card.dataset.category===category));
+  renderProducts();
+  document.getElementById("products").scrollIntoView({behavior:"smooth",block:"start"});
+}
+
+function showAllProducts(){
+  currentCategory = null;
+  document.getElementById("productHeading").textContent = "Our Products";
+  document.getElementById("showAllProducts").style.display = "none";
+  document.querySelectorAll(".category").forEach(card=>card.classList.remove("active"));
   renderProducts();
 }
 
