@@ -13,6 +13,7 @@ const reply = (body: unknown, status = 200) =>
   });
 
 Deno.serve(async (req) => {
+  let stage = "request";
   if (req.method === "OPTIONS") return new Response("ok", { headers: corsHeaders });
   if (req.method !== "POST") return reply({ error: "Method not allowed" }, 405);
 
@@ -34,6 +35,7 @@ Deno.serve(async (req) => {
     const key = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY");
     if (!url || !key) return reply({ error: "Order service is not configured." }, 500);
 
+    stage = "database connection";
     const db = createClient(url, key, { auth: { persistSession: false } });
     const cleanItems = items.map((x: any) => ({
       id: String(x.id ?? ""),
@@ -44,6 +46,7 @@ Deno.serve(async (req) => {
     }
 
     const ids = [...new Set(cleanItems.map((x: any) => x.id))];
+    stage = "checking products";
     const { data: products, error: productError } = await db
       .from("products").select("id,name,price,active").in("id", ids);
     if (productError) throw productError;
@@ -60,6 +63,7 @@ Deno.serve(async (req) => {
     if (!Number.isFinite(total) || total <= 0) return reply({ error: "Invalid order total." }, 400);
 
     const orderNumber = "VX-" + Date.now().toString(36).toUpperCase() + "-" + crypto.randomUUID().slice(0, 6).toUpperCase();
+    stage = "saving order";
     const { data: order, error: orderError } = await db.from("orders").insert({
       order_number: orderNumber,
       customer_name: name.trim().slice(0, 120),
@@ -72,6 +76,7 @@ Deno.serve(async (req) => {
     }).select("id,order_number,total").single();
     if (orderError) throw orderError;
 
+    stage = "saving order items";
     const orderLines = lines.map((line: any) => ({ ...line, order_id: order.id }));
     const { error: itemsError } = await db.from("order_items").insert(orderLines);
     if (itemsError) {
@@ -81,7 +86,8 @@ Deno.serve(async (req) => {
 
     return reply({ success: true, order_number: order.order_number, total: order.total });
   } catch (error) {
-    console.error("create-order error:", error);
-    return reply({ error: "Could not save your order. Please try again or contact support." }, 500);
+    console.error("create-order error at " + stage + ":", error);
+    const detail = error instanceof Error ? error.message : String(error);
+    return reply({ error: "Order failed at " + stage + ": " + detail }, 500);
   }
 });
