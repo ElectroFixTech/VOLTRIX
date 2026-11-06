@@ -1,0 +1,310 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>VOLTRIX | Admin</title>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:Arial;background:#080d18;color:white}
+header{padding:20px 6%;background:#111c2c;display:flex;justify-content:space-between;align-items:center}
+.logo{font-size:26px;font-weight:bold;color:#20d9ff;letter-spacing:3px}
+a{color:#20d9ff;text-decoration:none}
+button{background:#20d9ff;color:#06111b;border:0;padding:12px 16px;border-radius:6px;cursor:pointer;font-weight:bold}
+input,select,textarea{width:100%;padding:12px;margin:9px 0 17px;background:#080d18;color:white;border:1px solid #30445e;border-radius:6px}
+label{display:block;color:#bdcce0}
+main{max-width:1100px;margin:35px auto;padding:0 20px}
+.box{background:#111c2c;border:1px solid #263b55;border-radius:10px;padding:22px;margin-bottom:20px}
+.hidden{display:none!important}
+.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:15px}
+.stat{background:#17263a;padding:20px;border-radius:8px}
+.stat strong{display:block;color:#20d9ff;font-size:25px;margin-top:10px}
+.nav{display:flex;gap:9px;flex-wrap:wrap;margin-bottom:20px}
+.nav button{background:#263b55;color:white}
+.nav button.active{background:#20d9ff;color:#06111b}
+.item{background:#17263a;padding:16px;border-radius:8px;margin:12px 0}
+.item button{margin:8px 5px 0 0}
+.danger{background:#b93648;color:white}
+.secondary{background:#30445e;color:white}
+.msg{margin:12px 0;color:#20d9ff;overflow-wrap:anywhere}
+.error{color:#ff7885}
+</style>
+</head>
+<body>
+<header>
+<div class="logo">VOLTRIX ADMIN</div>
+<a href="index.html">← Store</a>
+</header>
+
+<main>
+<div id="login" class="box" style="max-width:430px;margin:50px auto">
+<h2>Admin Login</h2>
+<form id="loginForm">
+<label>Email</label>
+<input name="email" type="email" required>
+<label>Password</label>
+<input name="password" type="password" required>
+<button type="submit">Login</button>
+</form>
+<p id="loginMsg" class="msg"></p>
+</div>
+
+<div id="panel" class="hidden">
+<div class="nav">
+<button class="active" data-tab="dashboard">Dashboard</button>
+<button data-tab="products">Products</button>
+<button data-tab="orders">Orders</button>
+<button data-tab="customers">Customers</button>
+<button data-tab="settings">Settings</button>
+<button id="logout" class="danger">Logout</button>
+</div>
+
+<section id="dashboard" class="tab">
+<h2>Dashboard</h2><br>
+<div class="grid">
+<div class="stat">Products<strong id="countProducts">0</strong></div>
+<div class="stat">Orders<strong id="countOrders">0</strong></div>
+<div class="stat">Customers<strong id="countCustomers">0</strong></div>
+<div class="stat">Revenue<strong id="revenue">EGP 0</strong></div>
+</div>
+</section>
+
+<section id="products" class="tab hidden">
+<div class="box">
+<h2 id="formTitle">Add Product</h2>
+<form id="productForm">
+<input type="hidden" name="id">
+<label>Product Name</label>
+<input name="name" required>
+<label>Price (EGP)</label>
+<input name="price" type="number" min="0" step=".01" required>
+<label>Stock</label>
+<input name="stock" type="number" min="0" required>
+<label>Category</label>
+<select name="category">
+<option>Cables & Connectors</option>
+<option>Batteries & Chargers</option>
+<option>Electronic Components</option>
+<option>Tools & Equipment</option>
+<option>3D Printing</option>
+<option>Wireless Modules</option>
+</select>
+<label>Description</label>
+<textarea name="description"></textarea>
+<label>Image URL</label>
+<input name="image_url" type="url">
+<label><input name="active" type="checkbox" checked style="width:auto"> Visible in store</label>
+<button type="submit" id="saveBtn">Add Product</button>
+<button type="button" id="cancel" class="secondary hidden">Cancel</button>
+</form>
+<p id="productMsg" class="msg"></p>
+</div>
+<h2>All Products</h2>
+<div id="productList"></div>
+</section>
+
+<section id="orders" class="tab hidden">
+<h2>Orders</h2><br>
+<button id="refreshOrders">Refresh</button>
+<p id="orderMsg" class="msg"></p>
+<div id="orderList"></div>
+</section>
+
+<section id="customers" class="tab hidden">
+<h2>Customers</h2><br>
+<div id="customerList"></div>
+</section>
+
+<section id="settings" class="tab hidden">
+<h2>Store Settings</h2>
+<div class="box">
+<h3>VOLTRIX</h3><br>
+<p>Currency: EGP</p><br>
+<p>Payment: Cash on Delivery</p><br>
+<p>Online Payment: Coming Soon</p><br>
+<p class="msg">Checkout is currently in demo mode.</p>
+</div>
+</section>
+</div>
+</main>
+
+<script>
+const db=supabase.createClient(
+"https://zqzramrhfphvifmayycu.supabase.co",
+"sb_publishable_nw8wlcJkd8DHZ2DEmurqZw_y7EpvpVO"
+);
+const $=id=>document.getElementById(id);
+let products=[],orders=[];
+
+function safe(v){
+return String(v??"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
+}
+function money(v){return Number(v||0).toLocaleString("en-US")}
+function msg(id,t,error=false){$(id).textContent=t;$(id).className=error?"msg error":"msg"}
+
+async function verify(user){
+$("login").classList.remove("hidden");
+$("panel").classList.add("hidden");
+if(!user)return;
+const {data,error}=await db.from("profiles").select("role").eq("id",user.id).maybeSingle();
+if(error){msg("loginMsg","Profile error: "+error.message,true);return}
+if(data?.role!=="admin"){msg("loginMsg","Admin access denied.",true);await db.auth.signOut();return}
+$("login").classList.add("hidden");
+$("panel").classList.remove("hidden");
+await dashboard();
+}
+
+$("loginForm").onsubmit=async e=>{
+e.preventDefault();
+const f=new FormData(e.target);
+msg("loginMsg","Signing in...");
+const {data,error}=await db.auth.signInWithPassword({email:f.get("email"),password:f.get("password")});
+if(error){msg("loginMsg",error.message,true);return}
+await verify(data.user);
+};
+
+$("logout").onclick=()=>db.auth.signOut();
+
+document.querySelectorAll("[data-tab]").forEach(b=>{
+b.onclick=()=>{
+document.querySelectorAll(".tab").forEach(x=>x.classList.add("hidden"));
+$(b.dataset.tab).classList.remove("hidden");
+document.querySelectorAll("[data-tab]").forEach(x=>x.classList.remove("active"));
+b.classList.add("active");
+if(b.dataset.tab==="products")loadProducts();
+if(b.dataset.tab==="orders")loadOrders();
+if(b.dataset.tab==="customers")loadCustomers();
+if(b.dataset.tab==="dashboard")dashboard();
+};
+});
+
+async function dashboard(){
+const [p,o]=await Promise.all([
+db.from("products").select("id"),
+db.from("orders").select("id,total,status,phone")
+]);
+if(p.error||o.error){msg("orderMsg",p.error?.message||o.error?.message,true);return}
+orders=o.data||[];
+$("countProducts").textContent=p.data.length;
+$("countOrders").textContent=orders.length;
+$("countCustomers").textContent=new Set(orders.map(x=>x.phone).filter(Boolean)).size;
+$("revenue").textContent="EGP "+money(orders.filter(x=>x.status!=="cancelled").reduce((s,x)=>s+Number(x.total||0),0));
+}
+
+async function loadProducts(){
+const {data,error}=await db.from("products").select("*").order("created_at",{ascending:false});
+if(error){msg("productMsg",error.message,true);return}
+products=data||[];
+$("productList").innerHTML=products.map(p=>`
+<div class="item">
+<strong>${safe(p.name)}</strong>
+<p>EGP ${money(p.price)} | Stock: ${money(p.stock)} | ${p.active?"Visible":"Hidden"}</p>
+<button data-edit="${safe(p.id)}">Edit</button>
+<button class="danger" data-delete="${safe(p.id)}">Delete</button>
+</div>`).join("")||"No products yet.";
+}
+
+function resetForm(){
+$("productForm").reset();
+$("productForm").elements.id.value="";
+$("productForm").elements.active.checked=true;
+$("formTitle").textContent="Add Product";
+$("saveBtn").textContent="Add Product";
+$("cancel").classList.add("hidden");
+}
+$("cancel").onclick=resetForm;
+
+$("productList").onclick=async e=>{
+const edit=e.target.closest("[data-edit]");
+const del=e.target.closest("[data-delete]");
+if(edit){
+const p=products.find(x=>String(x.id)===edit.dataset.edit);
+if(!p)return;
+const f=$("productForm").elements;
+f.id.value=p.id;f.name.value=p.name;f.price.value=p.price;
+f.stock.value=p.stock;f.category.value=p.category||"Electronic Components";
+f.description.value=p.description||"";f.image_url.value=p.image_url||"";
+f.active.checked=!!p.active;
+$("formTitle").textContent="Edit Product";
+$("saveBtn").textContent="Save Changes";
+$("cancel").classList.remove("hidden");
+window.scrollTo({top:0,behavior:"smooth"});
+}
+if(del&&confirm("Delete this product?")){
+const {error}=await db.from("products").delete().eq("id",del.dataset.delete);
+if(error)msg("productMsg",error.message,true);
+else{msg("productMsg","Product deleted.");loadProducts()}
+}
+};
+
+$("productForm").onsubmit=async e=>{
+e.preventDefault();
+const f=e.target.elements;
+const p={
+name:f.name.value.trim(),price:Number(f.price.value),
+stock:Number(f.stock.value),category:f.category.value,
+description:f.description.value.trim(),
+image_url:f.image_url.value.trim()||null,active:f.active.checked
+};
+const result=f.id.value
+?await db.from("products").update(p).eq("id",f.id.value)
+:await db.from("products").insert(p);
+if(result.error){msg("productMsg",result.error.message,true);return}
+resetForm();msg("productMsg","Product saved successfully.");loadProducts();
+};
+
+async function loadOrders(){
+msg("orderMsg","Loading...");
+const {data,error}=await db.from("orders").select("*").order("created_at",{ascending:false});
+if(error){msg("orderMsg",error.message,true);return}
+orders=data||[];
+msg("orderMsg",orders.length+" orders found.");
+$("orderList").innerHTML=orders.map(o=>`
+<div class="item">
+<strong>${safe(o.order_number||o.id)}</strong>
+<p>${safe(o.customer_name)} | ${safe(o.phone)}</p>
+<p>${safe(o.governorate)} | ${safe(o.address)}</p>
+<p>EGP ${money(o.total)} | ${safe(o.payment_method)}</p>
+<label>Status</label>
+<select data-status="${safe(o.id)}">
+${["pending","confirmed","processing","shipped","delivered","cancelled"].map(s=>`<option ${o.status===s?"selected":""}>${s}</option>`).join("")}
+</select>
+<button data-update="${safe(o.id)}">Update Status</button>
+</div>`).join("")||"No saved orders yet.";
+}
+$("refreshOrders").onclick=loadOrders;
+$("orderList").onclick=async e=>{
+const b=e.target.closest("[data-update]");if(!b)return;
+const id=b.dataset.update;
+const s=$("orderList").querySelector(`[data-status="${CSS.escape(id)}"]`);
+const {error}=await db.from("orders").update({status:s.value}).eq("id",id);
+if(error)msg("orderMsg",error.message,true);else loadOrders();
+};
+
+async function loadCustomers(){
+const {data,error}=await db.from("orders").select("customer_name,phone,governorate,address").order("created_at",{ascending:false});
+if(error){$("customerList").textContent=error.message;return}
+const unique=new Map();
+(data||[]).forEach(c=>{if(c.phone&&!unique.has(c.phone))unique.set(c.phone,c)});
+$("customerList").innerHTML=[...unique.values()].map(c=>`
+<div class="item"><strong>${safe(c.customer_name)}</strong>
+<p>${safe(c.phone)}</p><p>${safe(c.governorate)} — ${safe(c.address)}</p></div>`).join("")||"No customers yet.";
+}
+
+db.auth.onAuthStateChange((event,session)=>{
+if(event==="SIGNED_OUT"){
+$("panel").classList.add("hidden");
+$("login").classList.remove("hidden");
+}
+});
+
+async function start(){
+const {data}=await db.auth.getSession();
+await verify(data.session?.user||null);
+}
+start();
+</script>
+</body>
+</html>
