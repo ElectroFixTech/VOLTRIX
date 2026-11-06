@@ -117,6 +117,7 @@
     <div class="category" data-category="Storage & Accessories" onclick="filterCategory('Storage & Accessories')"><div class="emoji">📦</div>Storage &amp; Accessories</div>
     <div class="category" data-category="Soldering / Flux / Cleaning" onclick="filterCategory('Soldering / Flux / Cleaning')"><div class="emoji">🧪</div>Soldering / Flux / Cleaning</div>
     <div class="category" data-category="Wholesale" onclick="filterCategory('Wholesale')"><div class="emoji">🏷️</div>Wholesale (الجملة)</div>
+    <div class="category" data-category="3D Printing" onclick="filterCategory('3D Printing')"><div class="emoji">🖨️</div>3D Printing</div>
   </div>
 </section>
 
@@ -178,7 +179,7 @@ async function loadProducts(){
 
   try{
     const response = await fetch(
-      `${SUPABASE_URL}/rest/v1/products?select=*&is_visible=eq.true&order=created_at.desc`,
+      `${SUPABASE_URL}/rest/v1/products?select=*&active=eq.true&order=created_at.desc`,
       {headers:{
         apikey:SUPABASE_KEY,
         Authorization:`Bearer ${SUPABASE_KEY}`
