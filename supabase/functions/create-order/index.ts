@@ -19,7 +19,7 @@ Deno.serve(async (req) => {
 
   try {
     const authorization = req.headers.get("Authorization") || "";
-    const token = authorization.replace(/^Bearer\\s+/i, "");
+    const token = authorization.replace(/^Bearer\s+/i, "");
     if (!token) return reply({ error: "Please sign in before placing an order." }, 401);
 
     const { name, phone, governorate, address, notes, payment_method, items } = await req.json();
