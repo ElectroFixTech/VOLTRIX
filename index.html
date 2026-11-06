@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">
 <meta name="theme-color" content="#080d18"><title>VOLTRIX | Electronics Store</title>
-<meta name="description" content="Electronics, components, tools and 3D printing supplies at VOLTRIX.">
+<meta name="description" content="Electronics, components, tools and 3D printing supplies at VOLTRIX."><script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <style>
 :root{--bg:#080d18;--panel:#111a2b;--panel2:#17243a;--line:#293a56;--text:#f4f7ff;--muted:#9aabc4;--blue:#087cff;--cyan:#19d3e6}
 *{box-sizing:border-box;margin:0;padding:0}html{scroll-behavior:smooth}body{font-family:Inter,Arial,sans-serif;background:radial-gradient(ellipse at 65% 0,#10264a 0,transparent 38%),var(--bg);color:var(--text);overflow-x:hidden}a{color:inherit;text-decoration:none}button{font:inherit;cursor:pointer}
@@ -57,7 +57,8 @@ const SUPABASE_KEY="sb_publishable_nw8wlcJkd8DHZ2DEmurqZw_y7EpvpVO";
 const categories=[
  ["Arduino & Development Boards","🧠"],["Sensors","📡"],["Power Supply","⚡"],["Batteries & Chargers","🔋"],["LED / LED Strip / IR / Fuses","💡"],["Tools","🔧"],["Breadboards, Wires & Cables","🧵"],["Connectors & Cable Accessories","🔗"],["Wireless / RF / Bluetooth","📶"],["Audio & Amplifier Modules","🔊"],["Relays & Control Modules","🔄"],["ICs & Electronic Components","🧩"],["3D Printing","🖨️"],["Mechanical / Hardware","🛠️"],["Storage & Accessories","📦"],["Soldering / Flux / Cleaning","🧪"],["Wholesale","🏷️"]
 ];
-let products=[],cart=[],currentCategory=null;
+let products=[],cart=JSON.parse(localStorage.getItem("voltrix_cart")||"[]"),currentCategory=null;
+const authClient=supabase.createClient(SUPABASE_URL,SUPABASE_KEY);
 const escapeHTML=v=>String(v??"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
 function buildCategories(){
  document.getElementById("sideCategories").innerHTML=categories.map(([name,emoji])=>'<a class="catlink" data-category="'+escapeHTML(name)+'" href="category.html?name='+encodeURIComponent(name)+'"><span class="caticon">'+emoji+'</span>'+escapeHTML(name)+' <span style="margin-left:auto">›</span></a>').join("");
@@ -122,9 +123,9 @@ function addToCart(id){
  const p=products.find(x=>String(x.id)===String(id));
  if(!p){alert("Product could not be added. Please refresh the page and try again.");return;}
  const item=cart.find(x=>String(x.id)===String(id));if(item)item.quantity++;else cart.push({...p,quantity:1});
- renderCart();const count=document.getElementById("cartCount");count.classList.remove("bump");void count.offsetWidth;count.classList.add("bump");showCartToast("Added "+p.name+" to cart ✓");
+ localStorage.setItem("voltrix_cart",JSON.stringify(cart));renderCart();const count=document.getElementById("cartCount");count.classList.remove("bump");void count.offsetWidth;count.classList.add("bump");showCartToast("Added "+p.name+" to cart ✓");
 }
-function removeFromCart(id){cart=cart.filter(x=>String(x.id)!==String(id));renderCart();showCartToast("Item removed from cart");}
+function removeFromCart(id){cart=cart.filter(x=>String(x.id)!==String(id));localStorage.setItem("voltrix_cart",JSON.stringify(cart));renderCart();showCartToast("Item removed from cart");}
 function renderCart(){
  const count=cart.reduce((s,x)=>s+x.quantity,0),total=cart.reduce((s,x)=>s+Number(x.price)*x.quantity,0);
  document.getElementById("cartCount").textContent=count;document.getElementById("cartTotal").textContent=total.toLocaleString();
@@ -135,6 +136,8 @@ document.getElementById("productList").addEventListener("click",e=>{const b=e.ta
 function showCheckoutMessage(message,type="error",fieldId=null){const box=document.getElementById("checkoutMessage");box.textContent=message;box.className="form-message show"+(type==="success"?" success":"");document.querySelectorAll(".checkout input").forEach(input=>input.classList.remove("invalid"));if(fieldId){const field=document.getElementById(fieldId);field.classList.add("invalid");field.focus();}box.scrollIntoView({behavior:"smooth",block:"center"});}
 async function checkout(){
  if(!cart.length){showCheckoutMessage("Your cart is empty.");return;}
+ const {data:sessionData}=await authClient.auth.getSession();
+ if(!sessionData.session){location.href="signin.html?next=checkout";return;}
  document.getElementById("checkoutMessage").className="form-message";
  const name=document.getElementById("customerName").value.trim();
  const phone=document.getElementById("customerPhone").value.trim();
@@ -152,13 +155,13 @@ async function checkout(){
  try{
   const response=await fetch(SUPABASE_URL+"/functions/v1/create-order",{
    method:"POST",
-   headers:{"Content-Type":"application/json","apikey":SUPABASE_KEY},
+   headers:{"Content-Type":"application/json","apikey":SUPABASE_KEY,"Authorization":"Bearer "+sessionData.session.access_token},
    body:JSON.stringify({name,phone,governorate,address,payment_method:"cod",items:cart.map(x=>({id:x.id,quantity:x.quantity}))})
   });
   const result=await response.json();
   if(!response.ok||!result.success){const detail=result.details?(" | Details: "+JSON.stringify(result.details)): "";throw new Error((result.error||"Order could not be saved.")+detail);}
   showCheckoutMessage("Your order was received! Order number: "+result.order_number+" | Total: "+Number(result.total).toLocaleString()+" EGP","success");
-  cart=[];renderCart();
+  cart=[];localStorage.removeItem("voltrix_cart");renderCart();
   ["customerName","customerPhone","customerGovernorate","customerAddress","customerNotes"].forEach(id=>document.getElementById(id).value="");
  }catch(error){showCheckoutMessage(error.message||"Could not submit your order. Please try again.");}
  finally{button.disabled=false;button.textContent="Place Order";}
