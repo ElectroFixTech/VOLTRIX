@@ -1,2 +1,5 @@
 [functions.create-order]
 verify_jwt = false
+
+[functions.list-customers]
+verify_jwt = true
