@@ -29,6 +29,7 @@ main{max-width:1100px;margin:35px auto;padding:0 20px}
 .danger{background:#b93648;color:white}
 .secondary{background:#30445e;color:white}
 .msg{margin:12px 0;color:#20d9ff;overflow-wrap:anywhere}
+.product-image-row{display:flex;align-items:center;gap:14px;margin:10px 0}.product-image-thumb{width:86px;height:76px;object-fit:contain;background:#f1f5fb;border-radius:8px;padding:5px;border:1px solid #30445e}.image-help{font-size:12px;color:#9aabc4;margin-top:6px}
 .error{color:#ff7885}
 html{scroll-behavior:smooth}
 header{animation:adminDrop .55s ease both}
@@ -242,6 +243,8 @@ products=data||[];
 $("productList").innerHTML=products.map(p=>`
 <div class="item">
 <strong>${safe(p.name)}</strong>
+<div class="product-image-row">${p.image_url?`<img class="product-image-thumb" src="${safe(p.image_url)}" alt="${safe(p.name)}" loading="lazy">`:'<div class="product-image-thumb" style="display:grid;place-items:center;color:#30445e">No image</div>'}
+<div><p>Product photo</p><button type="button" data-image="${safe(p.id)}">Upload / Change Image</button><p class="image-help">JPG, PNG or WEBP · max 5 MB</p></div></div>
 <p>EGP ${money(p.price)} | Stock: ${money(p.stock)} | ${p.active?"Visible":"Hidden"}</p>
 <button data-edit="${safe(p.id)}">Edit</button>
 <button class="danger" data-delete="${safe(p.id)}">Delete</button>
@@ -259,8 +262,35 @@ $("cancel").classList.add("hidden");
 $("cancel").onclick=resetForm;
 
 $("productList").onclick=async e=>{
+const imageButton=e.target.closest("[data-image]");
 const edit=e.target.closest("[data-edit]");
 const del=e.target.closest("[data-delete]");
+if(imageButton){
+ const p=products.find(x=>String(x.id)===imageButton.dataset.image);
+ if(!p)return;
+ const picker=document.createElement("input");
+ picker.type="file";picker.accept="image/jpeg,image/png,image/webp";
+ picker.onchange=async()=>{
+  const file=picker.files?.[0];if(!file)return;
+  if(!["image/jpeg","image/png","image/webp"].includes(file.type)){msg("productMsg","Choose a JPG, PNG or WEBP image.",true);return}
+  if(file.size>5*1024*1024){msg("productMsg","Image must be 5 MB or smaller.",true);return}
+  imageButton.disabled=true;msg("productMsg","Uploading image for "+p.name+"...");
+  try{
+   const cleanName=file.name.toLowerCase().replace(/[^a-z0-9._-]/g,"-").slice(-90)||"product-image";
+   const path=String(p.id)+"/"+Date.now()+"-"+cleanName;
+   const {error:uploadError}=await db.storage.from("product-images").upload(path,file,{contentType:file.type,upsert:false});
+   if(uploadError)throw uploadError;
+   const {data:urlData}=db.storage.from("product-images").getPublicUrl(path);
+   const {error:updateError}=await db.from("products").update({image_url:urlData.publicUrl}).eq("id",p.id);
+   if(updateError)throw updateError;
+   msg("productMsg","Image updated successfully for "+p.name+".");
+   await loadProducts();
+  }catch(error){msg("productMsg","Image upload failed: "+(error.message||String(error)),true)}
+  finally{imageButton.disabled=false}
+ };
+ picker.click();
+ return;
+}
 if(edit){
 const p=products.find(x=>String(x.id)===edit.dataset.edit);
 if(!p)return;
