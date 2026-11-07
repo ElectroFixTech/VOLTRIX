@@ -131,13 +131,29 @@ async function loadProducts(){
 function productPhoto(p){
  const n=String(p.name||"").toLowerCase();
  const photos=[
-  [/arduino uno r3/, "https://laelectronica.com.gt/image/cache/catalog/Productos/Arduinos/A000066-1-1200x1200.jpg"],
-  [/arduino nano/, "https://hackster.imgix.net/uploads/attachments/231079/F2SVJQ2IMI10LSS.LARGE.jpg?auto=compress%2Cformat&fit=max&h=960&w=1280"],
-  [/stm32f103c8t6 blue pill/, "https://www.faranux.com/wp-content/uploads/2017/05/stm32f103c6t6-stm32f103c8t6-arm-stm32-minimum-system-development.jpg"],
+  [/led aluminum pcb module 3w warm white/, "https://lampatronics.com/storage/10020/led.png"],
+  [/adjustable buck power module ca-1239/, "https://www.creatall.com/photo/ps187501539-step_down_power_module_ca_1239_adjustable_buck_converter_5_15v_input_1_25v_1_5v_1_8v_2_5v_3_3v_5v_output.jpg"],
+  [/8-channel 5v serial control relay/, "https://cukii.com/sites/default/files/ttool/93419-5V-Active-relay-time-Module-Low-8-Channel-Relay-Module-Relay-Interface-Board-for-Arduino-PIC-AVR-MCU-DSP-ARM-1.jpg"],
+  [/usb cable shielded 0.3m/, "https://mvelectronica.s3.us-east-2.amazonaws.com/productos/CABARD/609c240cbfbc5.webp"],
+  [/arduino nano 3d printed case/, "https://harishprojects.com/cdn/shop/files/arduinonanocase_nanoenclosure_arduinonanobox_nanov3case_3dprintedcase_arduinoenclosure_electronicsenclosure_diyprojectbox_nanoprotectivecase_controllercharishprojects_62.webp?v=1770818696&width=1445"],
+  [/stm32f103c8t6 blue pill/, "https://elecsynergy.in/cdn/shop/files/drnj4yxs.webp?v=1754385591&width=3840"],
+  [/smd resistor 332k/, "https://lampatronics.com/storage/9966/74aafe52-0e90-4d2f-9aca-080b8eabc853.jpg"],
+  [/max485 ttl to rs485/, "https://www.devobox.com/4964-large_default/max485-ttl-to-rs-485-module.jpg"],
+  [/arduino nano v3.0 ch340/, "https://down-vn.img.susercontent.com/file/c1c9cd761ce71206dc2053f6f67900ef"],
   [/water flow sensor yf-s201/, "https://cdn2.botland.com.pl/img/art/inne/08896_5_kwadrat.jpg"],
-  [/8-channel 5v serial control relay/, "https://www.tinytronics.nl/image/cache/data/product-162/8-channel%20relay%20low%20active-1200x1200w.JPG"],
-  [/usb-c 18650 charging module/, "https://laz-img-sg.alicdn.com/p/8923cbcb6297ae76e64e54d02bdbb07f.jpg"],
-  [/terminal block 3-pin/, "https://m.media-amazon.com/images/I/71JtyiePxCL.jpg"]
+  [/terminal block 3-pin/, "https://c1555f5ec9.clvaw-cdnwnd.com/34662fcf1f1e607c561442431023ac8e/system_preview_detail_200008968-66ff366ff5/AD7964%20uJPM.jpg"],
+  [/usb-c 18650 charging module/, "https://image.rakuten.co.jp/utsunomiya/cabinet/item-img7/kpocon2t.jpg"],
+  [/portable 25-in-1 screwdriver set/, "https://img.kilimall.com/c/obs/seller/10080/goods_image/251116135434_410bce5e263faf38bc29bfd18dc0592f.jpeg"],
+  [/arduino uno r3 3d printed snap-fit case/, "https://files.cults3d.com/uploaders/14043358/illustration-file/fa588a3b-199d-47b5-8990-5839947d0eba/ARDUINO_UNO_CASE_%283D_printed_2%29%5B1%5D.jpg"],
+  [/arduino uno r3/, "https://laelectronica.com.gt/image/cache/catalog/Productos/Arduinos/A000066-1-1200x1200.jpg"],
+  [/acti soldering liquid flux 15ml/, "https://lampatronics.com/storage/9961/001.jpg"],
+  [/arduino mega 3d printed snap-fit case/, "https://makerworld.bblmw.com/makerworld/model/US952e79abe36f1a/design/2025-04-30_d6b33842aa5208.png?x-oss-process=image%2Fresize%2Cw_1000%2Fformat%2Cwebp"],
+  [/bluetooth stereo amplifier board 5v/, "https://abra-electronics.com/images/detailed/156/BB-PAM8403-B_edited.jpg"],
+  [/tie wraps 150x2.5mm/, "https://www.botnroll.com/21658-medium_default/black-cable-ties-150x2-5mm-100-pcs.jpg"],
+  [/zip lock bags 15x20cm/, "https://zippack.ru/pictures/product/middle/5160_middle.jpg"],
+  [/icl7660 dip-8/, "https://hub360.cc/web/image/product.template/13431/image_1024?unique=a1301e7"],
+  [/st-link v2 programmer/, "https://soldered.com/cdn/shop/files/154690-Edit-1.jpg?v=1762939005&width=3840"],
+  [/arduino nano/, "https://hackster.imgix.net/uploads/attachments/231079/F2SVJQ2IMI10LSS.LARGE.jpg?auto=compress%2Cformat&fit=max&h=960&w=1280"]
  ];
  const match=photos.find(([pattern])=>pattern.test(n));
  return match?match[1]:(p.image_url||"");
@@ -167,7 +183,7 @@ function renderProducts(){
  const shown=products.filter(p=>(!currentCategory||p.category===currentCategory)&&(!term||[p.name,p.description,p.category].join(" ").toLowerCase().includes(term)));
  document.getElementById("productHeading").textContent=currentCategory|| (term?"Search Results":"★ Featured Products");
  if(!shown.length){list.innerHTML='<div class="empty">No products found. Try another category or search term.</div>';return;}
- list.innerHTML=shown.map((p,i)=>{const photo=productPhoto(p);return '<article class="product" style="animation-delay:'+Math.min(i*45,350)+'ms"><div class="product-media">'+(photo?'<img loading="lazy" src="'+escapeHTML(photo)+'" alt="'+escapeHTML(p.name)+'" onerror="this.remove()">':productIllustration(p))+'</div><div class="product-info"><h3>'+escapeHTML(p.name)+'</h3><p>'+escapeHTML(p.description||p.category||"Electronic component")+'</p><div class="price">'+Number(p.price||0).toLocaleString()+' EGP</div><span class="stock">● Stock status: Contact us</span><button type="button" class="add-cart-btn" data-product-id="'+escapeHTML(p.id)+'">🛒 Add to Cart</button></div></article>';}).join("");
+ list.innerHTML=shown.map((p,i)=>{const photo=productPhoto(p);const fallback=productIllustration(p);return '<article class="product" style="animation-delay:'+Math.min(i*45,350)+'ms"><div class="product-media">'+(photo?'<img loading="lazy" src="'+escapeHTML(photo)+'" alt="'+escapeHTML(p.name)+'" onerror="this.style.display=\'none\';this.nextElementSibling.style.display=\'grid\'"><div style="display:none;width:100%;height:100%">'+fallback+'</div>':fallback)+'</div><div class="product-info"><h3>'+escapeHTML(p.name)+'</h3><p>'+escapeHTML(p.description||p.category||"Electronic component")+'</p><div class="price">'+Number(p.price||0).toLocaleString()+' EGP</div><span class="stock">● Stock status: Contact us</span><button type="button" class="add-cart-btn" data-product-id="'+escapeHTML(p.id)+'">🛒 Add to Cart</button></div></article>';}).join("");
 }
 function filterCategory(name){currentCategory=name;renderProducts();document.getElementById("products").scrollIntoView({behavior:"smooth"});document.querySelectorAll(".catlink").forEach(b=>b.classList.toggle("active",b.dataset.category===name));}
 function showAllProducts(){currentCategory=null;document.getElementById("searchInput").value="";document.querySelectorAll(".catlink").forEach(b=>b.classList.remove("active"));renderProducts();}
