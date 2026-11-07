@@ -176,7 +176,7 @@ const db=supabase.createClient(
 "sb_publishable_nw8wlcJkd8DHZ2DEmurqZw_y7EpvpVO"
 );
 const $=id=>document.getElementById(id);
-let products=[],orders=[];
+let products=[],orders=[],currentRole="";
 
 function safe(v){
 return String(v??"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
@@ -191,10 +191,19 @@ if(!user)return;
 const {data,error}=await db.from("profiles").select("role").eq("id",user.id).maybeSingle();
 if(error){msg("loginMsg","Profile error: "+error.message,true);return}
 if(!data){msg("loginMsg","Profile row not found for this account. Check profiles.id matches Authentication User UID.",true);return}
-if(data.role!=="admin"){msg("loginMsg","This account role is: "+String(data.role)+". Expected admin.",true);return}
+if(!["admin","image_editor"].includes(data.role)){msg("loginMsg","This account does not have admin or image-editor access.",true);return}
+currentRole=data.role;
 $("login").classList.add("hidden");
 $("panel").classList.remove("hidden");
-await dashboard();
+if(currentRole==="image_editor"){
+ document.querySelectorAll(".nav [data-tab]").forEach(b=>{b.classList.toggle("hidden",b.dataset.tab!=="products")});
+ document.querySelectorAll(".tab").forEach(x=>x.classList.add("hidden"));
+ $("products").classList.remove("hidden");
+ document.querySelectorAll(".nav [data-tab]").forEach(x=>x.classList.toggle("active",x.dataset.tab==="products"));
+ $("formTitle").closest(".box").classList.add("hidden");
+}
+if(currentRole==="admin")await dashboard();
+else await loadProducts();
 }
 
 $("loginForm").onsubmit=async e=>{
@@ -246,8 +255,7 @@ $("productList").innerHTML=products.map(p=>`
 <div class="product-image-row">${p.image_url?`<img class="product-image-thumb" src="${safe(p.image_url)}" alt="${safe(p.name)}" loading="lazy">`:'<div class="product-image-thumb" style="display:grid;place-items:center;color:#30445e">No image</div>'}
 <div><p>Product photo</p><button type="button" data-image="${safe(p.id)}">Upload / Change Image</button><p class="image-help">JPG, PNG or WEBP · max 5 MB</p></div></div>
 <p>EGP ${money(p.price)} | Stock: ${money(p.stock)} | ${p.active?"Visible":"Hidden"}</p>
-<button data-edit="${safe(p.id)}">Edit</button>
-<button class="danger" data-delete="${safe(p.id)}">Delete</button>
+${currentRole==="admin"?`<button data-edit="${safe(p.id)}">Edit</button><button class="danger" data-delete="${safe(p.id)}">Delete</button>`:""}
 </div>`).join("")||"No products yet.";
 }
 
@@ -281,7 +289,7 @@ if(imageButton){
    const {error:uploadError}=await db.storage.from("product-images").upload(path,file,{contentType:file.type,upsert:false});
    if(uploadError)throw uploadError;
    const {data:urlData}=db.storage.from("product-images").getPublicUrl(path);
-   const {error:updateError}=await db.from("products").update({image_url:urlData.publicUrl}).eq("id",p.id);
+   const {error:updateError}=await db.rpc("set_product_image",{product_id:p.id,new_image_url:urlData.publicUrl});
    if(updateError)throw updateError;
    msg("productMsg","Image updated successfully for "+p.name+".");
    await loadProducts();
