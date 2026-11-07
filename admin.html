@@ -253,7 +253,7 @@ $("productList").innerHTML=products.map(p=>`
 <div class="item">
 <strong>${safe(p.name)}</strong>
 <div class="product-image-row">${p.image_url?`<img class="product-image-thumb" src="${safe(p.image_url)}" alt="${safe(p.name)}" loading="lazy">`:'<div class="product-image-thumb" style="display:grid;place-items:center;color:#30445e">No image</div>'}
-<div><p>Product photo</p><button type="button" data-image="${safe(p.id)}">Upload / Change Image</button><p class="image-help">JPG, PNG or WEBP · max 5 MB</p></div></div>
+<div><p>Product photo</p><button type="button" data-image="${safe(p.id)}">Upload Product Photos</button><p class="image-help">Select multiple JPG, PNG or WEBP · max 5 MB each</p></div></div>
 <p>EGP ${money(p.price)} | Stock: ${money(p.stock)} | ${p.active?"Visible":"Hidden"}</p>
 ${currentRole==="admin"?`<button data-edit="${safe(p.id)}">Edit</button><button class="danger" data-delete="${safe(p.id)}">Delete</button>`:""}
 </div>`).join("")||"No products yet.";
@@ -277,21 +277,24 @@ if(imageButton){
  const p=products.find(x=>String(x.id)===imageButton.dataset.image);
  if(!p)return;
  const picker=document.createElement("input");
- picker.type="file";picker.accept="image/jpeg,image/png,image/webp";
+ picker.type="file";picker.accept="image/jpeg,image/png,image/webp";picker.multiple=true;
  picker.onchange=async()=>{
-  const file=picker.files?.[0];if(!file)return;
-  if(!["image/jpeg","image/png","image/webp"].includes(file.type)){msg("productMsg","Choose a JPG, PNG or WEBP image.",true);return}
-  if(file.size>5*1024*1024){msg("productMsg","Image must be 5 MB or smaller.",true);return}
-  imageButton.disabled=true;msg("productMsg","Uploading image for "+p.name+"...");
+  const files=Array.from(picker.files||[]);if(!files.length)return;
+  if(files.some(file=>!["image/jpeg","image/png","image/webp"].includes(file.type))){msg("productMsg","Choose JPG, PNG or WEBP images only.",true);return}
+  if(files.some(file=>file.size>5*1024*1024)){msg("productMsg","Each image must be 5 MB or smaller.",true);return}
+  imageButton.disabled=true;msg("productMsg","Uploading "+files.length+" photo(s) for "+p.name+"...");
   try{
-   const cleanName=file.name.toLowerCase().replace(/[^a-z0-9._-]/g,"-").slice(-90)||"product-image";
-   const path=String(p.id)+"/"+Date.now()+"-"+cleanName;
-   const {error:uploadError}=await db.storage.from("product-images").upload(path,file,{contentType:file.type,upsert:false});
-   if(uploadError)throw uploadError;
-   const {data:urlData}=db.storage.from("product-images").getPublicUrl(path);
-   const {error:updateError}=await db.rpc("set_product_image",{product_id:p.id,new_image_url:urlData.publicUrl});
+   const urls=[];
+   for(const file of files){
+    const cleanName=file.name.toLowerCase().replace(/[^a-z0-9._-]/g,"-").slice(-90)||"product-image";
+    const path=String(p.id)+"/"+Date.now()+"-"+Math.random().toString(36).slice(2,8)+"-"+cleanName;
+    const {error:uploadError}=await db.storage.from("product-images").upload(path,file,{contentType:file.type,upsert:false});
+    if(uploadError)throw uploadError;
+    urls.push(db.storage.from("product-images").getPublicUrl(path).data.publicUrl);
+   }
+   const {error:updateError}=await db.rpc("set_product_gallery",{product_id:String(p.id),new_image_urls:urls});
    if(updateError)throw updateError;
-   msg("productMsg","Image updated successfully for "+p.name+".");
+   msg("productMsg","Photos updated successfully for "+p.name+".");
    await loadProducts();
   }catch(error){msg("productMsg","Image upload failed: "+(error.message||String(error)),true)}
   finally{imageButton.disabled=false}
