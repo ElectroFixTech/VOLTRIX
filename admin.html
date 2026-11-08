@@ -133,6 +133,8 @@ input:focus,select:focus,textarea:focus{outline:none;border-color:#20d9ff;box-sh
 <p id="productMsg" class="msg"></p>
 </div>
 <h2>All Products</h2>
+<button type="button" id="addLipoDrafts" style="margin:12px 0">＋ Add 3.7V Li-Po Draft Products</button>
+<p class="image-help">Adds hidden draft listings with EGP 0 and stock 0. Confirm exact capacity, dimensions, connector and supplier details before publishing.</p>
 <div id="productList"></div>
 </section>
 
@@ -338,6 +340,38 @@ if(result.error){msg("productMsg",result.error.message,true);return}
 resetForm();msg("productMsg","Product saved successfully.");loadProducts();
 };
 
+$("addLipoDrafts").onclick=async()=>{
+ if(currentRole!=="admin"){msg("productMsg","Admin access is required to add products.",true);return}
+ const drafts=[
+  ["3.7V Li-Po Battery – Mini (50–100mAh)","Mini pouch cell; verify exact capacity, dimensions, connector and protection details with supplier."],
+  ["3.7V Li-Po Battery – Small (100–300mAh)","Small pouch cell; verify exact capacity, dimensions, connector and protection details with supplier."],
+  ["3.7V Li-Po Battery – Compact (300–500mAh)","Compact pouch cell; verify exact capacity, dimensions, connector and protection details with supplier."],
+  ["3.7V Li-Po Battery – Slim (500–800mAh)","Slim pouch cell; verify exact capacity, dimensions, connector and protection details with supplier."],
+  ["3.7V Li-Po Battery – Medium (800–1200mAh)","Medium pouch cell; verify exact capacity, dimensions, connector and protection details with supplier."],
+  ["3.7V Li-Po Battery – Medium Plus (1200–2000mAh)","Medium-plus pouch cell; verify exact capacity, dimensions, connector and protection details with supplier."],
+  ["3.7V Li-Po Battery – Large (2000–3000mAh)","Large pouch cell; verify exact capacity, dimensions, connector and protection details with supplier."],
+  ["3.7V Li-Po Battery – Large Plus (3000–5000mAh)","Large-plus pouch cell; verify exact capacity, dimensions, connector and protection details with supplier."],
+  ["3.7V Li-Po Battery – High Capacity (5000–8000mAh)","High-capacity pouch cell; verify exact capacity, dimensions, connector and protection details with supplier."],
+  ["3.7V Li-Po Battery – Custom Size","Custom pouch-cell listing; enter the supplier-confirmed capacity and dimensions before publishing."]
+ ];
+ const names=drafts.map(x=>x[0]);
+ $("addLipoDrafts").disabled=true;
+ msg("productMsg","Checking existing Li-Po listings...");
+ try{
+  const {data:existing,error:checkError}=await db.from("products").select("name").in("name",names);
+  if(checkError)throw checkError;
+  const have=new Set((existing||[]).map(x=>x.name));
+  const rows=drafts.filter(x=>!have.has(x[0])).map(([name,description])=>({
+   name,description,price:0,stock:0,category:"Batteries & Chargers",image_url:null,active:false
+  }));
+  if(!rows.length){msg("productMsg","Li-Po draft products already exist. No duplicates added.");return}
+  const {error}=await db.from("products").insert(rows);
+  if(error)throw error;
+  msg("productMsg",rows.length+" hidden Li-Po draft products added. Edit each one to enter the supplier-confirmed price, stock, specifications and photo before making it visible.");
+  await loadProducts();
+ }catch(error){msg("productMsg","Could not add Li-Po drafts: "+(error.message||String(error)),true)}
+ finally{$("addLipoDrafts").disabled=false}
+};
 async function loadOrders(){
 msg("orderMsg","Loading...");
 const {data,error}=await db.from("orders").select("*").order("created_at",{ascending:false});
