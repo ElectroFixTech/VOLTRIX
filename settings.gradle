@@ -13,4 +13,4 @@ dependencyResolutionManagement {
     }
 }
 rootProject.name = "VOLTRIX"
-include(":app")
+include(":app", ":admin-app")
