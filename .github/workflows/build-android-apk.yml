@@ -1,10 +1,11 @@
-name: Build VOLTRIX Android APK
+name: Build VOLTRIX Android Apps
 
 on:
   workflow_dispatch:
   push:
     paths:
       - 'app/**'
+      - 'admin-app/**'
       - 'build.gradle'
       - 'settings.gradle'
       - '.github/workflows/build-android-apk.yml'
@@ -32,12 +33,14 @@ jobs:
         with:
           packages: 'platform-tools platforms;android-35 build-tools;35.0.0'
 
-      - name: Build debug APK
+      - name: Build both debug APKs
         run: gradle assembleDebug
 
-      - name: Upload APK
+      - name: Upload customer and admin APKs
         uses: actions/upload-artifact@v4
         with:
-          name: VOLTRIX-Android-APK
-          path: app/build/outputs/apk/debug/app-debug.apk
+          name: VOLTRIX-Android-Apps
+          path: |
+            app/build/outputs/apk/debug/app-debug.apk
+            admin-app/build/outputs/apk/debug/admin-app-debug.apk
           if-no-files-found: error
