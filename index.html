@@ -122,12 +122,29 @@ function buildCategories(){
  document.getElementById("shortCategories").innerHTML=categories.slice(0,7).map(([name,emoji])=>'<a class="shortcut" href="category.html?name='+encodeURIComponent(name)+'"><span class="emoji">'+emoji+'</span><span>'+escapeHTML(name)+'</span></a>').join("");
 }
 async function loadProducts(){
- const list=document.getElementById("productList");list.innerHTML='<div class="empty">Loading products...</div>';
+ const list=document.getElementById("productList");
+ if(!list)return;
+ list.innerHTML='<div class="empty">Loading products...</div>';
+ const controller=new AbortController();
+ const timeout=setTimeout(()=>controller.abort(),15000);
  try{
-  const response=await fetch(SUPABASE_URL+'/rest/v1/products?select=*&active=eq.true&order=created_at.desc',{headers:{apikey:SUPABASE_KEY,Authorization:'Bearer '+SUPABASE_KEY}});
-  if(!response.ok)throw new Error(await response.text());
-  products=await response.json();renderProducts();
- }catch(error){const detail=error?.message||String(error);list.innerHTML='<div class="empty">Could not load products.<br><small style="display:block;margin-top:10px;direction:ltr;color:#ff9aa8">'+escapeHTML(detail)+'</small></div>';console.error(error);}
+  const response=await fetch(SUPABASE_URL+'/rest/v1/products?select=*&active=eq.true&order=created_at.desc&limit=100',{
+   headers:{apikey:SUPABASE_KEY,Authorization:'Bearer '+SUPABASE_KEY},
+   signal:controller.signal,
+   cache:'no-store'
+  });
+  if(!response.ok)throw new Error('Supabase HTTP '+response.status+': '+(await response.text()).slice(0,350));
+  const data=await response.json();
+  if(!Array.isArray(data))throw new Error('Unexpected products response from database.');
+  products=data;
+  renderProducts();
+ }catch(error){
+  const detail=error?.name==='AbortError'?'The products request timed out. Please refresh and try again.':(error?.message||String(error));
+  list.innerHTML='<div class="empty">Could not load products.<br><small style="display:block;margin-top:10px;direction:ltr;color:#ff9aa8">'+escapeHTML(detail)+'</small><button type="button" onclick="loadProducts()" style="margin-top:14px;padding:10px 16px;border:0;border-radius:8px;background:#087cff;color:white;font-weight:800">Retry</button></div>';
+  console.error('VOLTRIX product loading error:',error);
+ }finally{
+  clearTimeout(timeout);
+ }
 }
 function productPhoto(p){
  const n=String(p.name||"").toLowerCase();
