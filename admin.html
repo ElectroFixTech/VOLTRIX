@@ -133,8 +133,8 @@ input:focus,select:focus,textarea:focus{outline:none;border-color:#20d9ff;box-sh
 <p id="productMsg" class="msg"></p>
 </div>
 <h2>All Products</h2>
-<button type="button" id="addLipoDrafts" style="margin:12px 0">＋ Add 3.7V Li-Po Draft Products</button>
-<p class="image-help">Adds hidden draft listings with EGP 0 and stock 0. Confirm exact capacity, dimensions, connector and supplier details before publishing.</p>
+<button type="button" id="addLipoDrafts" style="margin:12px 0">↻ Replace Battery Catalog</button>
+<p class="image-help">Replaces the visible battery catalog with LampaTronics-style battery, charger, holder and BMS drafts. New items start hidden with EGP 0 and stock 0 so you can confirm price, stock and photos first.</p>
 <div id="productList"></div>
 </section>
 
@@ -341,35 +341,50 @@ resetForm();msg("productMsg","Product saved successfully.");loadProducts();
 };
 
 $("addLipoDrafts").onclick=async()=>{
- if(currentRole!=="admin"){msg("productMsg","Admin access is required to add products.",true);return}
+ if(currentRole!=="admin"){msg("productMsg","Admin access is required to replace the battery catalog.",true);return}
+ if(!confirm("Hide all current Batteries & Chargers listings and add the new LampaTronics-style catalog as hidden drafts? Existing orders will not be deleted."))return;
  const drafts=[
-  ["3.7V Li-Po Battery – Mini (50–100mAh)","Mini pouch cell; verify exact capacity, dimensions, connector and protection details with supplier."],
-  ["3.7V Li-Po Battery – Small (100–300mAh)","Small pouch cell; verify exact capacity, dimensions, connector and protection details with supplier."],
-  ["3.7V Li-Po Battery – Compact (300–500mAh)","Compact pouch cell; verify exact capacity, dimensions, connector and protection details with supplier."],
-  ["3.7V Li-Po Battery – Slim (500–800mAh)","Slim pouch cell; verify exact capacity, dimensions, connector and protection details with supplier."],
-  ["3.7V Li-Po Battery – Medium (800–1200mAh)","Medium pouch cell; verify exact capacity, dimensions, connector and protection details with supplier."],
-  ["3.7V Li-Po Battery – Medium Plus (1200–2000mAh)","Medium-plus pouch cell; verify exact capacity, dimensions, connector and protection details with supplier."],
-  ["3.7V Li-Po Battery – Large (2000–3000mAh)","Large pouch cell; verify exact capacity, dimensions, connector and protection details with supplier."],
-  ["3.7V Li-Po Battery – Large Plus (3000–5000mAh)","Large-plus pouch cell; verify exact capacity, dimensions, connector and protection details with supplier."],
-  ["3.7V Li-Po Battery – High Capacity (5000–8000mAh)","High-capacity pouch cell; verify exact capacity, dimensions, connector and protection details with supplier."],
-  ["3.7V Li-Po Battery – Custom Size","Custom pouch-cell listing; enter the supplier-confirmed capacity and dimensions before publishing."]
+  ["Li-Po Battery 3.7V 160mAh (502020)","Single-cell 3.7V lithium-polymer pouch battery. Listed dimensions: 20 × 20 × 5 mm. Confirm connector and current availability before publishing."],
+  ["Li-Po Battery 3.7V 200mAh (501240)","Single-cell 3.7V lithium-polymer pouch battery. Listed dimensions: 40 × 12 × 5 mm. Requires a compatible Li-Po charging solution."],
+  ["Li-Po Battery 3.7V 350mAh (402030)","Single-cell 3.7V lithium-polymer pouch battery. Listed dimensions: 30 × 20 × 4 mm. Confirm connector and protection details before publishing."],
+  ["Li-Po Battery 3.7V 600mAh (602030)","Single-cell 3.7V lithium-polymer pouch battery. Listed dimensions: 30 × 20 × 6 mm. Confirm connector and protection details before publishing."],
+  ["Li-Po Battery 3.7V 600mAh (502018)","Single-cell 3.7V lithium-polymer pouch battery. Listed dimensions: 20 × 18 × 5 mm. Confirm connector and protection details before publishing."],
+  ["Li-Po Battery 3.7V 1000mAh (503450)","Single-cell 3.7V lithium-polymer pouch battery. Listed dimensions: 50 × 34 × 5 mm. Confirm connector and protection details before publishing."],
+  ["GP AA 1.5V Battery (2-Pack)","Two GP AA 1.5V primary cells. Non-rechargeable. Confirm pack availability before publishing."],
+  ["18650 Battery Holder (1 Cell)","Single-cell holder for one 3.7V 18650 lithium-ion cell. Battery is not included."],
+  ["18650 Battery Charger 4-Slot (MS-404A)","Mains charger for up to four 18650 lithium-ion cells, with independent slots and charge-status indicators. Confirm plug and regional compatibility."],
+  ["18650 Battery Charger 3-Slot (MS-303A)","Mains charger for up to three 18650 lithium-ion cells, with independent slots and charge-status indicators. Confirm plug and regional compatibility."],
+  ["AA / AAA / 9V Battery Charger (MP-704)","Multi-format charger listed for AA, AAA and 9V rechargeable batteries. Check the battery chemistry supported by the exact unit."],
+  ["AA / AAA / 9V 4-Slot Charger (MP-908)","Four-slot charger listed for AA, AAA and 9V Ni-MH/Ni-Cd rechargeable batteries."],
+  ["BMS 3S 12.6V 60A Protection Board","3-series lithium battery protection board. Verify the exact continuous-current rating and cell compatibility from the supplied unit before listing."],
+  ["BMS 4S 16.8V 8A Protection Board","4-series lithium battery protection board, listed for 8A class use. Verify exact ratings and wiring documentation before publishing."],
+  ["BMS 4S 16.8V 40A Enhanced Protection Board","4-series lithium battery protection board, enhanced type. Verify cooling conditions and exact current rating before publishing."],
+  ["BMS 6S 24V 20A Protection Board","6-series lithium battery protection board with balancing function. Verify the exact current rating and compatible pack configuration."],
+  ["BMS 7S 10A Protection Board","7-series lithium battery protection board with balancing and over-current / voltage protection. Verify exact specifications before publishing."],
+  ["BMS 10S 36V 30A Protection Board","10-series lithium battery protection board for lithium-ion packs. Verify exact ratings and cell compatibility before publishing."],
+  ["USB-C 2S 8.4V 2A Lithium Charger Module","USB-C input charging module for a 2-series lithium-ion pack, with 8.4V listed final charge voltage. Confirm input and charge-current limits."],
+  ["USB-C 3S 12.6V 2A Lithium Charger Module","USB-C input charging module for a 3-series lithium-ion pack, with 12.6V listed final charge voltage. Confirm input and charge-current limits."],
+  ["USB-C 3.7V Lithium Charge & 5V Boost Module","Compact charge-and-boost module for a single-cell 3.7V lithium battery. Confirm the exact protection and output-current limits before publishing."]
  ];
  const names=drafts.map(x=>x[0]);
  $("addLipoDrafts").disabled=true;
- msg("productMsg","Checking existing Li-Po listings...");
+ msg("productMsg","Preparing the new battery catalog...");
  try{
+  const {error:hideError}=await db.from("products").update({active:false}).eq("category","Batteries & Chargers");
+  if(hideError)throw hideError;
   const {data:existing,error:checkError}=await db.from("products").select("name").in("name",names);
   if(checkError)throw checkError;
   const have=new Set((existing||[]).map(x=>x.name));
   const rows=drafts.filter(x=>!have.has(x[0])).map(([name,description])=>({
    name,description,price:0,stock:0,category:"Batteries & Chargers",image_url:null,active:false
   }));
-  if(!rows.length){msg("productMsg","Li-Po draft products already exist. No duplicates added.");return}
-  const {error}=await db.from("products").insert(rows);
-  if(error)throw error;
-  msg("productMsg",rows.length+" hidden Li-Po draft products added. Edit each one to enter the supplier-confirmed price, stock, specifications and photo before making it visible.");
+  if(rows.length){
+   const {error:insertError}=await db.from("products").insert(rows);
+   if(insertError)throw insertError;
+  }
+  msg("productMsg","Done: old Batteries & Chargers listings are hidden; "+rows.length+" new draft products added. Existing orders were preserved. Add confirmed prices, stock and photos before making products visible.");
   await loadProducts();
- }catch(error){msg("productMsg","Could not add Li-Po drafts: "+(error.message||String(error)),true)}
+ }catch(error){msg("productMsg","Catalog update stopped: "+(error.message||String(error)),true)}
  finally{$("addLipoDrafts").disabled=false}
 };
 async function loadOrders(){
