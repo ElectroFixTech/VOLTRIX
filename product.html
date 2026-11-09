@@ -1,0 +1,40 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="theme-color" content="#080d18">
+<title>Product Details | VOLTRIX</title><script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<style>
+*{box-sizing:border-box}body{margin:0;background:radial-gradient(ellipse at 65% 0,#10264a 0,transparent 38%),#080d18;color:#f4f7ff;font-family:Arial,sans-serif}.top{padding:16px 5%;background:#080e1bee;border-bottom:1px solid #293a56;display:flex;justify-content:space-between;align-items:center;gap:12px}.logo{font-size:25px;font-weight:900;letter-spacing:2px;color:#19d3e6}.top a{color:#19d3e6;text-decoration:none;font-weight:700}.wrap{max-width:1150px;margin:34px auto;padding:0 18px}.back{display:inline-block;margin-bottom:20px;color:#9bc9ff;text-decoration:none}.detail{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:30px;background:#111a2b;border:1px solid #293a56;border-radius:18px;padding:24px}.main-photo{height:430px;background:#f2f6fc;border-radius:13px;display:grid;place-items:center;overflow:hidden}.main-photo img{width:100%;height:100%;object-fit:contain;padding:15px}.symbol{font-size:100px;color:#087cff}.thumbs{display:flex;gap:9px;overflow:auto;margin-top:12px}.thumbs button{flex:0 0 76px;height:72px;background:#f2f6fc;border:2px solid #344d6b;border-radius:9px;padding:4px;cursor:pointer}.thumbs button.active{border-color:#19d3e6}.thumbs img{width:100%;height:100%;object-fit:contain}.info{padding:12px 4px}.info h1{font-size:clamp(24px,4vw,36px);line-height:1.25;margin:8px 0 14px}.price{font-size:29px;font-weight:900;color:#25c9ff;margin:18px 0}.desc{color:#c1cee1;line-height:1.8;white-space:pre-wrap}.meta{margin:20px 0;padding:15px;background:#17263a;border-radius:10px;line-height:2;color:#d6e4f7}.action{display:block;width:100%;padding:15px;border:0;border-radius:9px;background:linear-gradient(90deg,#087cff,#00bce9);color:white;text-align:center;text-decoration:none;font-weight:900;font-size:16px;cursor:pointer;margin-top:18px}.muted{color:#9aabc4}.error{padding:25px;text-align:center;background:#111a2b;border:1px solid #293a56;border-radius:12px;color:#f4f7ff}@media(max-width:760px){.detail{grid-template-columns:1fr;padding:14px;gap:15px}.main-photo{height:290px}.info{padding:8px 3px}}
+</style></head>
+<body>
+<header class="top"><div class="logo">ϟ VOLTRIX</div><a href="index.html">← Back to store</a></header>
+<main class="wrap"><a class="back" href="javascript:history.back()">← Back</a><div id="content" class="error">Loading product details...</div></main>
+<script>
+const SUPABASE_URL="https://zqzramrhfphvifmayycu.supabase.co";
+const SUPABASE_KEY="sb_publishable_nw8wlcJkd8DHZ2DEmurqZw_y7EpvpVO";
+const esc=v=>String(v??"").replace(/[&<>"']/g,ch=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[ch]));
+const id=new URLSearchParams(location.search).get("id");
+let product=null,images=[];
+function askUrl(){return "https://wa.me/201015158101?text="+encodeURIComponent("Hello VOLTRIX, please confirm price and availability for: "+(product?.name||"this product"));}
+function selectPhoto(index){const main=document.getElementById("mainPhoto");if(!main||!images[index])return;main.innerHTML='<img src="'+esc(images[index])+'" alt="'+esc(product.name)+'">';document.querySelectorAll(".thumbs button").forEach((b,i)=>b.classList.toggle("active",i===index));}
+function addToCart(){if(!product)return;let cart=[];try{cart=JSON.parse(localStorage.getItem("voltrix_cart")||"[]");if(!Array.isArray(cart))cart=[];}catch(e){cart=[];}const item=cart.find(x=>String(x.id)===String(product.id));if(item)item.quantity=(Number(item.quantity)||1)+1;else cart.push({...product,quantity:1});localStorage.setItem("voltrix_cart",JSON.stringify(cart));const b=document.getElementById("addCart");if(b){b.textContent="✓ Added to Cart";setTimeout(()=>b.textContent="🛒 Add to Cart",1600);}}
+async function loadProduct(){
+ const root=document.getElementById("content");
+ if(!id){root.innerHTML='<div class="error">Product not found. <a href="index.html">Return to store</a></div>';return;}
+ try{
+  const url=SUPABASE_URL+"/rest/v1/products?select=*&id=eq."+encodeURIComponent(id)+"&active=eq.true&limit=1";
+  const response=await fetch(url,{headers:{apikey:SUPABASE_KEY,Authorization:"Bearer "+SUPABASE_KEY}});
+  if(!response.ok)throw new Error("Could not load product ("+response.status+").");
+  const rows=await response.json();product=rows[0];
+  if(!product){root.innerHTML='<div class="error">This product is unavailable or no longer listed. <a href="index.html">Return to store</a></div>';return;}
+  images=[...new Set([product.image_url,...(Array.isArray(product.gallery_images)?product.gallery_images:[])].filter(Boolean))];
+  const inquiry=Number(product.price||0)===0;
+  root.className="detail";
+  root.innerHTML='<section><div class="main-photo" id="mainPhoto">'+(images[0]?'<img src="'+esc(images[0])+'" alt="'+esc(product.name)+'">':'<span class="symbol">ϟ</span>')+'</div><div class="thumbs">'+images.map((u,i)=>'<button type="button" class="'+(!i?'active':'')+'" data-index="'+i+'" aria-label="Show product photo '+(i+1)+'"><img src="'+esc(u)+'" alt=""></button>').join("")+'</div></section><section class="info"><div class="muted">VOLTRIX PRODUCT</div><h1>'+esc(product.name)+'</h1><div class="price">'+(inquiry?"Price on request":Number(product.price||0).toLocaleString()+" EGP")+'</div><p class="desc">'+esc(product.description||"No description available yet.")+'</p><div class="meta"><b>Category:</b> '+esc(product.category||"Electronics")+'<br><b>Availability:</b> '+(inquiry?"Contact us to confirm availability":Number(product.stock||0)>0?"In stock ("+Number(product.stock)+")":"Currently unavailable")+'</div>'+(inquiry?'<a class="action" href="'+askUrl()+'" target="_blank" rel="noopener noreferrer">Ask for Price on WhatsApp</a>':'<button class="action" id="addCart" type="button">🛒 Add to Cart</button>')+'</section>';
+  document.querySelector(".thumbs").addEventListener("click",e=>{const b=e.target.closest("[data-index]");if(b)selectPhoto(Number(b.dataset.index));});
+  document.getElementById("addCart")?.addEventListener("click",addToCart);
+  document.title=product.name+" | VOLTRIX";
+ }catch(error){root.className="error";root.textContent=error.message||"Could not load product details.";}
+}
+loadProduct();
+</script></body></html>
