@@ -223,7 +223,33 @@ function renderCart(){
 }
 document.addEventListener("click",e=>{const b=e.target.closest(".remove-cart-btn");if(!b)return;e.preventDefault();e.stopPropagation();removeFromCart(b.dataset.productId);},true);
 document.getElementById("productList").addEventListener("click",e=>{const b=e.target.closest(".add-cart-btn");if(b&&b.tagName==="BUTTON"){e.stopPropagation();addToCart(b.dataset.productId);return;}const card=e.target.closest(".product");if(card&&!e.target.closest("a")){const id=card.dataset.productId;if(id)location.href="product.html?id="+encodeURIComponent(id);}});
-function openProductDetails(id){const p=products.find(x=>String(x.id)===String(id));if(!p)return;const imgs=[...new Set([p.image_url,...(Array.isArray(p.gallery_images)?p.gallery_images:[])].filter(Boolean))];const first=imgs[0]||productPhoto(p);const c=document.getElementById("productDetailContent");c.innerHTML='<div class="product-detail-grid"><div><div class="product-gallery-main" id="detailMain">'+(first?'<img src="'+escapeHTML(first)+'" alt="'+escapeHTML(p.name)+'">':productIllustration(p))+'</div><div class="product-gallery-thumbs">'+imgs.map((u,i)=>'<button type="button" class="'+(!i?'active':'')+'" data-img-index="'+i+'"><img src="'+escapeHTML(u)+'" alt="Product photo '+(i+1)+'"></button>').join("")+'</div></div><div class="product-detail-info"><h2>'+escapeHTML(p.name)+'</h2><div class="detail-price">'+(Number(p.price||0)===0?'Price on request':Number(p.price||0).toLocaleString()+' EGP')+'</div><p>'+escapeHTML(p.description||"No description available yet.")+'</p><div class="detail-meta"><b>Category:</b> '+escapeHTML(p.category||"Electronics")+'<br><b>Availability:</b> '+(Number(p.price||0)===0?'Contact us to confirm availability':Number(p.stock||0)>0?'In stock ('+Number(p.stock)+')':'Currently unavailable')+'</div>'+(Number(p.price||0)===0?'<a class="detail-add" style="display:block;text-align:center;text-decoration:none" href="https://wa.me/201015158101?text='+encodeURIComponent("Hello VOLTRIX, please confirm price and availability for: "+p.name)+'" target="_blank" rel="noopener noreferrer">Ask for Price on WhatsApp</a>':'<button class="detail-add" id="detailAdd">🛒 Add to Cart</button>')</div></div>';c.querySelector("#detailAdd").onclick=()=>{addToCart(String(p.id));closeProductDetails();};c.querySelector(".product-gallery-thumbs").onclick=e=>{const b=e.target.closest("[data-img-index]");if(!b)return;const i=Number(b.dataset.imgIndex);c.querySelector("#detailMain").innerHTML='<img src="'+escapeHTML(imgs[i])+'" alt="'+escapeHTML(p.name)+'">';c.querySelectorAll("[data-img-index]").forEach(x=>x.classList.toggle("active",x===b));};document.getElementById("productModal").classList.add("open");document.body.style.overflow="hidden";}
+function openProductDetails(id){
+ const p=products.find(x=>String(x.id)===String(id));
+ if(!p)return;
+ const imgs=[...new Set([p.image_url,...(Array.isArray(p.gallery_images)?p.gallery_images:[])].filter(Boolean))];
+ const first=imgs[0]||productPhoto(p);
+ const c=document.getElementById("productDetailContent");
+ const priceHtml=Number(p.price||0)===0?"Price on request":Number(p.price||0).toLocaleString()+" EGP";
+ const availability=Number(p.price||0)===0?"Contact us to confirm availability":Number(p.stock||0)>0?"In stock ("+Number(p.stock)+")":"Currently unavailable";
+ const galleryHtml=imgs.map((u,i)=>'<button type="button" class="'+(!i?"active":"")+'" data-img-index="'+i+'"><img src="'+escapeHTML(u)+'" alt="Product photo '+(i+1)+'"></button>').join("");
+ const askUrl="https://wa.me/201015158101?text="+encodeURIComponent("Hello VOLTRIX, please confirm price and availability for: "+p.name);
+ const actionHtml=Number(p.price||0)===0
+  ?'<a class="detail-add" style="display:block;text-align:center;text-decoration:none" href="'+askUrl+'" target="_blank" rel="noopener noreferrer">Ask for Price on WhatsApp</a>'
+  :'<button class="detail-add" id="detailAdd">🛒 Add to Cart</button>';
+ c.innerHTML='<div class="product-detail-grid"><div><div class="product-gallery-main" id="detailMain">'+(first?'<img src="'+escapeHTML(first)+'" alt="'+escapeHTML(p.name)+'">':productIllustration(p))+'</div><div class="product-gallery-thumbs">'+galleryHtml+'</div></div><div class="product-detail-info"><h2>'+escapeHTML(p.name)+'</h2><div class="detail-price">'+priceHtml+'</div><p>'+escapeHTML(p.description||"No description available yet.")+'</p><div class="detail-meta"><b>Category:</b> '+escapeHTML(p.category||"Electronics")+'<br><b>Availability:</b> '+availability+'</div>'+actionHtml+'</div></div>';
+ const addButton=c.querySelector("#detailAdd");
+ if(addButton)addButton.onclick=()=>{addToCart(String(p.id));closeProductDetails();};
+ const thumbs=c.querySelector(".product-gallery-thumbs");
+ if(thumbs)thumbs.onclick=e=>{
+  const b=e.target.closest("[data-img-index]");
+  if(!b)return;
+  const i=Number(b.dataset.imgIndex);
+  c.querySelector("#detailMain").innerHTML='<img src="'+escapeHTML(imgs[i])+'" alt="'+escapeHTML(p.name)+'">';
+  c.querySelectorAll("[data-img-index]").forEach(x=>x.classList.toggle("active",x===b));
+ };
+ document.getElementById("productModal").classList.add("open");
+ document.body.style.overflow="hidden";
+}
 function closeProductDetails(){document.getElementById("productModal").classList.remove("open");document.body.style.overflow="";}
 document.addEventListener("keydown",e=>{if(e.key==="Escape")closeProductDetails();});
 function showCheckoutMessage(message,type="error",fieldId=null){const box=document.getElementById("checkoutMessage");box.textContent=message;box.className="form-message show"+(type==="success"?" success":"");document.querySelectorAll(".checkout input").forEach(input=>input.classList.remove("invalid"));if(fieldId){const field=document.getElementById(fieldId);field.classList.add("invalid");field.focus();}box.scrollIntoView({behavior:"smooth",block:"center"});}
