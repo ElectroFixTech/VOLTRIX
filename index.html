@@ -149,6 +149,16 @@ async function loadProducts(){
 function productPhoto(p){
  const n=String(p.name||"").toLowerCase();
  const photos=[
+  [/160mah.*502020|502020/, "https://lampatronics.com/storage/555/08f86c5a-7ebe-46ac-9c97-70aaeb7f581e.png"],
+  [/200mah.*501240|501240/, "https://lampatronics.com/storage/9271/c052f606-f213-491b-b474-a09ef92d2b33.jpeg"],
+  [/350mah.*402030|402030/, "https://lampatronics.com/storage/392/767d659a-a79f-4be4-9b94-73f3cbb087c2.png"],
+  [/600mah.*602030|602030/, "https://lampatronics.com/storage/9206/1000mah.png"],
+  [/600mah.*502018|502018/, "https://lampatronics.com/storage/8846/502018--600mah.png"],
+  [/1000mah.*503450|503450/, "https://lampatronics.com/storage/9206/1000mah.png"],
+  [/18650 battery holder.*1 cell|battery holder.*1x18650/, "https://lampatronics.com/storage/7736/1X18650.png"],
+  [/bms 4s.*8a|4s 16\.8v 8a/, "https://lampatronics.com/storage/7976/BMS-4S---8A.jpg"],
+  [/bms 4s.*40a|4s 16\.8v 40a/, "https://lampatronics.com/storage/3538/8a08001c-0998-46d4-87e1-e0e961664def.jpg"],
+  [/bms 6s.*20a|6s 24v 20a/, "https://lampatronics.com/storage/8008/BMS-6S-20A.png"],
   [/led aluminum pcb module 3w warm white/, "https://lampatronics.com/storage/10020/led.png"],
   [/adjustable buck power module ca-1239/, "https://www.creatall.com/photo/ps187501539-step_down_power_module_ca_1239_adjustable_buck_converter_5_15v_input_1_25v_1_5v_1_8v_2_5v_3_3v_5v_output.jpg"],
   [/8-channel 5v serial control relay/, "https://cukii.com/sites/default/files/ttool/93419-5V-Active-relay-time-Module-Low-8-Channel-Relay-Module-Relay-Interface-Board-for-Arduino-PIC-AVR-MCU-DSP-ARM-1.jpg"],
