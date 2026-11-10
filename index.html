@@ -183,7 +183,8 @@ function productPhoto(p){
   [/arduino nano/, "https://hackster.imgix.net/uploads/attachments/231079/F2SVJQ2IMI10LSS.LARGE.jpg?auto=compress%2Cformat&fit=max&h=960&w=1280"]
  ];
  const match=photos.find(([pattern])=>pattern.test(n));
- return p.image_url||(match?match[1]:"");
+ // Prefer a verified catalog match over an old or empty database image URL.
+ return (match?match[1]:"")||p.image_url||"";
 }
 function productEmoji(category){
  const found=categories.find(c=>c[0]===category);return found?found[1]:"🔌";
