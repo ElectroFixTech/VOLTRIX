@@ -276,6 +276,34 @@ $("cancel").classList.add("hidden");
 }
 $("cancel").onclick=resetForm;
 
+// Capture gallery removal clicks before the product-list delegated handler.
+$("productList").addEventListener("click",async e=>{
+ const button=e.target.closest("[data-remove-image]");
+ if(!button)return;
+ e.preventDefault();
+ e.stopImmediatePropagation();
+ const product=products.find(x=>String(x.id)===button.dataset.productId);
+ if(!product){msg("productMsg","Product data is not loaded. Refresh the Products tab and try again.",true);return}
+ if(!confirm("Remove this photo from "+product.name+"?"))return;
+ const oldText=button.textContent;
+ button.disabled=true;
+ button.textContent="Removing...";
+ msg("productMsg","Sending photo-removal request to Supabase...");
+ try{
+  const {data,error}=await db.rpc("remove_product_gallery_image",{
+   p_product_id:String(product.id),
+   p_image_url:button.dataset.removeImage
+  });
+  if(error)throw error;
+  msg("productMsg","Supabase accepted the request. Refreshing product photos...");
+  await loadProducts();
+ }catch(error){
+  msg("productMsg","Photo removal failed: "+(error?.message||String(error)),true);
+  button.disabled=false;
+  button.textContent=oldText;
+ }
+},true);
+
 $("productList").onclick=async e=>{
 const imageButton=e.target.closest("[data-image]");
 const removeImage=e.target.closest("[data-remove-image]");
