@@ -21,6 +21,12 @@ begin
     raise exception 'Not authorized to manage product photos';
   end if;
 
+  if not exists (
+    select 1 from public.products where id::text = p_product_id
+  ) then
+    raise exception 'Product not found';
+  end if;
+
   select array_agg(photo_url order by photo_order)
   into remaining_urls
   from (
@@ -39,10 +45,6 @@ begin
     where p.id::text = p_product_id
       and g.photo_url <> p_image_url
   ) photos;
-
-  if not found then
-    raise exception 'Product not found';
-  end if;
 
   update public.products
   set image_url = remaining_urls[1],
