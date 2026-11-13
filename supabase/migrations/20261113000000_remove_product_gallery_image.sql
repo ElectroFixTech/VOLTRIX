@@ -1,4 +1,5 @@
 -- Remove one photo from a product gallery without deleting the product.
+-- gallery_images is JSONB in this project.
 -- Run this once in Supabase Dashboard > SQL Editor.
 create or replace function public.remove_product_gallery_image(
   p_product_id text,
@@ -40,8 +41,12 @@ begin
 
     select g.photo_url, g.photo_order
     from public.products p
-    cross join lateral unnest(coalesce(p.gallery_images, array[]::text[]))
-      with ordinality as g(photo_url, photo_order)
+    cross join lateral jsonb_array_elements_text(
+      case
+        when jsonb_typeof(p.gallery_images) = 'array' then p.gallery_images
+        else '[]'::jsonb
+      end
+    ) with ordinality as g(photo_url, photo_order)
     where p.id::text = p_product_id
       and g.photo_url <> p_image_url
   ) photos;
@@ -49,8 +54,8 @@ begin
   update public.products
   set image_url = remaining_urls[1],
       gallery_images = coalesce(
-        remaining_urls[2:array_length(remaining_urls, 1)],
-        array[]::text[]
+        to_jsonb(remaining_urls[2:array_length(remaining_urls, 1)]),
+        '[]'::jsonb
       )
   where id::text = p_product_id;
 end;
