@@ -290,7 +290,7 @@ return `
 <div class="product-image-row">
 <div><p>Product photos (${imageUrls.length})</p><button type="button" data-image="${safe(p.id)}">Upload Product Photos</button><p class="image-help">Select multiple JPG, PNG or WEBP · max 5 MB each</p></div>
 </div>
-<div class="admin-gallery">${imageUrls.map((url,i)=>`<div class="admin-gallery-item"><img src="${safe(url)}" alt="${safe(p.name)} photo ${i+1}" loading="lazy"><button type="button" class="danger" data-remove-image="${safe(url)}" data-product-id="${safe(p.id)}">Remove photo ${i+1}</button></div>`).join("")||'<p class="image-help">No photos added yet.</p>'}</div>
+<div class="admin-gallery">${imageUrls.map((url,i)=>`<div class="admin-gallery-item"><img src="${safe(url)}" alt="${safe(p.name)} photo ${i+1}" loading="lazy"><button type="button" class="danger" data-remove-image="${safe(url)}" data-product-id="${safe(p.id)}">Remove photo ${i+1}</button><p class="image-help" data-photo-status></p></div>`).join("")||'<p class="image-help">No photos added yet.</p>'}</div>
 <p>EGP ${money(p.price)} | Stock: ${money(p.stock)} | ${p.active?"Visible":"Hidden"}</p>
 ${currentRole==="admin"?`<button data-edit="${safe(p.id)}">Edit</button><button class="danger" data-delete="${safe(p.id)}">Delete</button>`:""}
 </div>`;
@@ -307,31 +307,51 @@ $("cancel").classList.add("hidden");
 }
 $("cancel").onclick=resetForm;
 
-// Capture gallery removal clicks before the product-list delegated handler.
+// Handle gallery removal and show the result directly under the selected photo.
 $("productList").addEventListener("click",async e=>{
  const button=e.target.closest("[data-remove-image]");
  if(!button)return;
  e.preventDefault();
  e.stopImmediatePropagation();
+ const card=button.closest(".admin-gallery-item");
+ const status=card?.querySelector("[data-photo-status]");
+ const setStatus=(text,isError=false)=>{
+  if(status){status.textContent=text;status.style.color=isError?"#ff7885":"#20d9ff";}
+  msg("productMsg",text,isError);
+ };
  const product=products.find(x=>String(x.id)===button.dataset.productId);
- if(!product){msg("productMsg","Product data is not loaded. Refresh the Products tab and try again.",true);return}
- if(!await siteConfirm("Remove this photo from "+product.name+"?","Remove photo"))return;
- const oldText=button.textContent;
+ if(!product){setStatus("Product data is not loaded. Refresh the Products tab and try again.",true);return}
+ const imageUrl=button.dataset.removeImage;
+ if(!imageUrl){setStatus("Could not identify this photo. Refresh and try again.",true);return}
+ const confirmed=await siteConfirm("Remove this photo from "+product.name+"?","Remove photo");
+ if(!confirmed)return;
  button.disabled=true;
  button.textContent="Removing...";
- msg("productMsg","Sending photo-removal request to Supabase...");
+ setStatus("Sending removal request to Supabase...");
  try{
   const {data,error}=await db.rpc("remove_product_gallery_image",{
    p_product_id:String(product.id),
-   p_image_url:button.dataset.removeImage
+   p_image_url:imageUrl
   });
   if(error)throw error;
-  msg("productMsg","Supabase accepted the request. Refreshing product photos...");
+  setStatus("Supabase completed the request. Checking the updated gallery...");
+  const {data:updated,error:readError}=await db.from("products").select("id,image_url,gallery_images").eq("id",product.id).single();
+  if(readError)throw readError;
+  const stillExists=updated.image_url===imageUrl || (Array.isArray(updated.gallery_images)&&updated.gallery_images.includes(imageUrl));
+  if(stillExists){
+   setStatus("The database still contains this photo after the request. Check the SQL function and gallery_images column type.",true);
+   button.disabled=false;
+   button.textContent="Try again";
+   return;
+  }
+  setStatus("Photo removed successfully.");
   await loadProducts();
  }catch(error){
-  msg("productMsg","Photo removal failed: "+(error?.message||String(error)),true);
+  const detail=error?.message||error?.details||String(error);
+  setStatus("Photo removal failed: "+detail,true);
   button.disabled=false;
-  button.textContent=oldText;
+  button.textContent="Try again";
+  console.error("VOLTRIX photo removal error:",error);
  }
 },true);
 
