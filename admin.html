@@ -29,7 +29,7 @@ main{max-width:1100px;margin:35px auto;padding:0 20px}
 .danger{background:#b93648;color:white}
 .secondary{background:#30445e;color:white}
 .msg{margin:12px 0;color:#20d9ff;overflow-wrap:anywhere}
-.product-image-row{display:flex;align-items:center;gap:14px;margin:10px 0}.product-image-thumb{width:86px;height:76px;object-fit:contain;background:#f1f5fb;border-radius:8px;padding:5px;border:1px solid #30445e}.image-help{font-size:12px;color:#9aabc4;margin-top:6px}
+.product-image-row{display:flex;align-items:center;gap:14px;margin:10px 0}.product-image-thumb{width:86px;height:76px;object-fit:contain;background:#f1f5fb;border-radius:8px;padding:5px;border:1px solid #30445e}.image-help{font-size:12px;color:#9aabc4;margin-top:6px}.admin-gallery{display:flex;flex-wrap:wrap;gap:10px;margin:10px 0}.admin-gallery-item{width:112px;background:#0b1525;border:1px solid #30445e;border-radius:9px;padding:7px}.admin-gallery-item img{width:100%;height:82px;object-fit:contain;background:#f1f5fb;border-radius:6px}.admin-gallery-item button{width:100%;margin:7px 0 0;padding:7px;font-size:12px}
 .error{color:#ff7885}
 html{scroll-behavior:smooth}
 header{animation:adminDrop .55s ease both}
@@ -251,14 +251,19 @@ async function loadProducts(){
 const {data,error}=await db.from("products").select("*").order("created_at",{ascending:false});
 if(error){msg("productMsg",error.message,true);return}
 products=data||[];
-$("productList").innerHTML=products.map(p=>`
+$("productList").innerHTML=products.map(p=>{
+const imageUrls=[...new Set([p.image_url,...(Array.isArray(p.gallery_images)?p.gallery_images:[])].filter(Boolean))];
+return `
 <div class="item">
 <strong>${safe(p.name)}</strong>
-<div class="product-image-row">${p.image_url?`<img class="product-image-thumb" src="${safe(p.image_url)}" alt="${safe(p.name)}" loading="lazy">`:'<div class="product-image-thumb" style="display:grid;place-items:center;color:#30445e">No image</div>'}
-<div><p>Product photo</p><button type="button" data-image="${safe(p.id)}">Upload Product Photos</button><p class="image-help">Select multiple JPG, PNG or WEBP · max 5 MB each</p></div></div>
+<div class="product-image-row">
+<div><p>Product photos (${imageUrls.length})</p><button type="button" data-image="${safe(p.id)}">Upload Product Photos</button><p class="image-help">Select multiple JPG, PNG or WEBP · max 5 MB each</p></div>
+</div>
+<div class="admin-gallery">${imageUrls.map((url,i)=>`<div class="admin-gallery-item"><img src="${safe(url)}" alt="${safe(p.name)} photo ${i+1}" loading="lazy"><button type="button" class="danger" data-remove-image="${safe(url)}" data-product-id="${safe(p.id)}">Remove photo ${i+1}</button></div>`).join("")||'<p class="image-help">No photos added yet.</p>'}</div>
 <p>EGP ${money(p.price)} | Stock: ${money(p.stock)} | ${p.active?"Visible":"Hidden"}</p>
 ${currentRole==="admin"?`<button data-edit="${safe(p.id)}">Edit</button><button class="danger" data-delete="${safe(p.id)}">Delete</button>`:""}
-</div>`).join("")||"No products yet.";
+</div>`;
+}).join("")||"No products yet.";
 }
 
 function resetForm(){
@@ -273,8 +278,23 @@ $("cancel").onclick=resetForm;
 
 $("productList").onclick=async e=>{
 const imageButton=e.target.closest("[data-image]");
+const removeImage=e.target.closest("[data-remove-image]");
 const edit=e.target.closest("[data-edit]");
 const del=e.target.closest("[data-delete]");
+if(removeImage){
+ const p=products.find(x=>String(x.id)===removeImage.dataset.productId);
+ if(!p)return;
+ if(!confirm("Remove this photo from "+p.name+"?"))return;
+ removeImage.disabled=true;
+ msg("productMsg","Removing photo...");
+ const {error}=await db.rpc("remove_product_gallery_image",{
+  p_product_id:String(p.id),
+  p_image_url:removeImage.dataset.removeImage
+ });
+ if(error){msg("productMsg","Could not remove photo: "+error.message,true);removeImage.disabled=false}
+ else{msg("productMsg","Photo removed from "+p.name+".");await loadProducts()}
+ return;
+}
 if(imageButton){
  const p=products.find(x=>String(x.id)===imageButton.dataset.image);
  if(!p)return;
